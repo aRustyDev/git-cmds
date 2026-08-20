@@ -1,6 +1,40 @@
 # Question 0003 — Is the store trait async?
 
-- **Status:** open · **Owner:** sync **B7** · **Date:** 2026-08-20
+- **Status:** **determined by evidence 2026-08-20 — the answer is async.** Awaiting ratification as an
+  ADR by sync **B7**, which is the only step left.
+- **Owner:** sync **B7** · **Date:** 2026-08-20
+
+## Answer: async, forced by the vector slot
+
+Screened 2026-08-20 (`analysis/0004`). **Both halves of the vector pair are asynchronous-only, on the
+same runtime, with no blocking API:**
+
+- **Qdrant** (`qdrant-client`) — networked half. Every method `async fn`; `tokio` is a non-optional
+  dependency; gRPC over `tonic`. No sync feature.
+- **Lance** (`lancedb`) — embedded half. Builder methods terminate in `.execute().await`; depends on
+  `tokio`. No blocking API documented.
+
+`REV-2` requires both halves before v1, and neither offers a synchronous interface. **So the trait is
+async, and this holds regardless of the graph slot** — which is why the vector pair was the right thing
+to check: two lookups instead of ten.
+
+**Option C — "both, behind a feature flag" — is now unavailable**, not merely unattractive. There is no
+synchronous implementation to put behind the flag.
+
+**The relational pair would have permitted either answer.** PostgreSQL has a genuine blocking Rust client
+rather than a facade over a runtime. It is outvoted by a slot whose candidates permit only one thing.
+
+**What remains for B7** is not the decision but its consequences, and they are the substance of the ADR:
+
+1. **Name which shape pays.** It is the local shape — it carries an async runtime it would not otherwise
+   need. That is the disliked consequence and it belongs in the record.
+2. **Specify the offload strategy for synchronous embedded engines.** A blocking call inside an async task
+   stalls the executor exactly under the concurrent load `PERF-1` measures, and it is invisible until then.
+   This is the requirement that actually gets got wrong.
+3. **Confirm the graph and relational clients** — they cannot change the answer now, but they determine how
+   much offloading is needed.
+
+The original framing follows, unchanged, because the reasoning is what makes the answer checkable.
 - **Blocks:** the first store implementation. Nothing before that.
 - **Must be answered during backend screening, never after.**
 

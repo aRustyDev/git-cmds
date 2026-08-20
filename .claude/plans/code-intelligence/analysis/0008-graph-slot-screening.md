@@ -107,12 +107,18 @@ update — **no longer bears on this slot**, because lexical ranking moved to th
 | **graphdblite** | Three releases, **66 total downloads**, first published three months ago. The description is exactly right for the slot; there is no evidence yet that the project exists in any durable sense. |
 | **Omnigraph** | Very young with essentially no adoption (17 downloads on the database crate). Worth one note for later: it ships a **Cedar-backed policy engine**, which is the only candidate that touches `SEC-8`'s authorisation-unit problem natively — interesting if per-node authorisation is ever chosen, irrelevant otherwise. |
 
-### Cannot screen — 1
+### Not a store candidate — 1
 
-**`kin`** is **not identifiable.** No graph database by that name exists on the Rust package registry, and
-searching for it returns unrelated projects. It may be non-Rust, internal, or a misremembered name.
-**Requester input needed** — it is the one candidate this screen could not assess at all, and guessing
-would be worse than saying so.
+**`kin`** — identified 2026-08-20 from locations supplied by the requester. **It is not a graph store.**
+It is a Rust, Apache-2.0, agent-first code-intelligence tool — *"a persistent graph of entities,
+relationships, changes, and provenance, so humans and AI agents see what a change touches before it
+merges"* — with a CLI, a daemon and an MCP surface.
+
+That is **substantially this product**, not a component of it. It is therefore removed from this screen and
+escalated: see [`findings/0001-kin-is-a-peer-implementation.md`](../findings/0001-kin-is-a-peer-implementation.md),
+which bears on the plan's build-versus-adopt premise rather than on any requirement. `GAP-023`.
+
+**Nine candidates screened, not ten.**
 
 ## Two things the screen found that were not being looked for
 

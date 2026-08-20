@@ -122,7 +122,33 @@ async runtime brings the runtime as a dependency and creates a nested-runtime ha
 itself async. That is a different situation from a genuinely synchronous client, and the screening must
 distinguish them.
 
-### The inference worth stating, marked as an inference
+### ✅ Screened 2026-08-20 — the vector pair settles it
+
+**Both halves of the vector slot are asynchronous-only, on the same runtime.**
+
+| Candidate | Role | Evidence | Sync API? |
+|---|---|---|---|
+| **Qdrant** (`qdrant-client`) | networked half | every method `async fn`; `tokio` a **non-optional** dependency; gRPC over `tonic` | **none** — no blocking API, no sync feature |
+| **Lance** (`lancedb`) | embedded half | builder methods terminate in `.execute().await`; depends on `tokio` | **none documented** |
+
+`REV-2` requires **both** halves of the vector slot before v1. Neither offers a synchronous interface.
+So the persistence layer above them is async, and **that conclusion holds whatever the graph slot turns
+out to be** — which is why this was worth checking first: two lookups rather than ten.
+
+**The relational pair is the counterweight, and it does not change the answer.** PostgreSQL has a genuine
+blocking Rust client rather than a facade over a runtime, so that pair would have permitted either choice.
+It is outvoted by a slot whose candidates permit only one.
+
+**What this costs, stated because `questions/0003` requires the disliked consequence to be named:** the
+**local shape pays**. It carries an async runtime it would otherwise not need, and every synchronous
+embedded engine — a graph engine, an embedded SQL engine — needs an explicit offload strategy. Getting
+that wrong puts a blocking call inside an async task, which stalls the executor precisely under the
+concurrent load `PERF-1` exists to measure, and it is invisible until then.
+
+**Still unscreened:** the graph and relational slots' clients, and whether either embedded candidate is
+pure Rust or an FFI binding. Those affect the offload design; they no longer affect the async decision.
+
+### The inference this replaces, kept for the record
 
 **Mainstream Rust clients for networked services are predominantly asynchronous**, and where a
 synchronous interface exists it is usually a blocking facade over an async runtime rather than an

@@ -433,6 +433,30 @@ it out substantially, and A4 exists specifically to generate `hypothetical` entr
 - **relates:** Track **C** material under the shared outcome vocabulary — adopt · vendor · emulate · take
   the UX only · decline. **No sync currently owns it**; it fits alongside C2–C4 and needs adding.
 
+### GAP-023 — The permissive-alternative survey has expired, and a peer implementation now exists
+- **kind:** knowledge · **confidence:** `discovered` · **disposition:** `open`
+- **source:** identifying `kin` from the graph-candidate list, 2026-08-20 (`findings/0001`)
+- **missing:** an assessment of `kin` — Rust, **Apache-2.0**, v0.5.19, actively developed — which describes
+  itself as a persistent graph of code entities, relationships and provenance, with a CLI, a daemon and an
+  MCP surface, so that *"humans and AI agents see what a change touches before it merges."* **That is
+  substantially the product this corpus specifies**, in the same language, under a permissive licence.
+- **consequence:** this plan's premise is that the capable prior art cannot be used for licence reasons and
+  that **nothing permissive spans both halves of the capability**. That conclusion came from a survey `kin`
+  was not in — plausibly because it did not yet exist in usable form. **The survey has expired, not been
+  refuted**, and the build-versus-adopt comparison was made against it.
+- **verification:** ⚠️ **nothing has been read or run.** Registry metadata and the project's own marketing
+  only. `analysis/0003` note 19 binds: public descriptions are evidence of contract, never of mechanism —
+  and its central claim is near-identical to the one the grounding measured, in the other tool, to be a
+  single hop rather than a traversal. Three checks, in order: (1) the open-core boundary — which
+  capabilities are Apache-2.0 and which are the commercial tier, since `EXT-8` clause 3 requires assessing
+  a grant not a category; (2) whether its impact analysis distinguishes *nothing affected* from *could not
+  determine*, which is `COR-1` and the property the prior art got wrong while claiming otherwise; (3) only
+  then a capability comparison, `inaccessible` and `elevated` rows first.
+- **relates:** owned by **A4**, using Track **C**'s outcome vocabulary. **Escalates to the requester as a
+  premise question**, not an architecture one. Note `CON-1` does **not** apply — Apache-2.0 means reading
+  it taints nobody, and this corpus now forbids reading the tool it replaces while permitting reading the
+  tool that may replace it.
+
 ## Triage and verification pass — 2026-08-20
 
 The A-track requirements work is the first substantial pass over the register, so both the **triage**

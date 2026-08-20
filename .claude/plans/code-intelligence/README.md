@@ -174,6 +174,8 @@ hardest algorithmic requirement in the corpus rather than solve it.
 | `analysis/0005-deployment-shape-contrast.md` | Applicability per requirement, distinguishing *unimposed* locally from *inapplicable* locally. | ✅ |
 | `analysis/0006-threat-model.md` | Assets, principals, trust boundaries per shape, adversaries in and out of scope. | ✅ |
 | `analysis/0007-target-corpus-implications.md` | The target corpus (a Rust workspace over gRPC/HTTP) and the eight requirements it changes. Carries the conditional-edge finding. | ✅ |
+| `analysis/0008-graph-slot-screening.md` | First-pass registry screen of the graph candidates — three carried forward, two held, four declined on specific facts. Finds only **one** networked openCypher option. | ✅ |
+| `findings/0001-kin-is-a-peer-implementation.md` | **Bears on the plan's premise.** One "graph store" candidate turned out to be a Rust, Apache-2.0 implementation of substantially this product. The permissive-alternative survey has expired. | ✅ |
 | [`QUESTIONS.md`](QUESTIONS.md) | Index over `questions/` and `discussions/`, with the dependency chain that ends in a rewrite. | ✅ |
 | `questions/0001` … `0011` | Naming · backlog · async · derived identities · AGPL linkability · v1 scope · authorisation unit · embedding provider · TUI · store targets · wiki contract. | ✅ |
 | `discussions/0001` · `0002` | What "impact analysis" means · is read/write asymmetry the primary seam. | ✅ |
