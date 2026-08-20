@@ -364,57 +364,62 @@ Do not resolve these yourself. Record them as questions:
   equivalent to be text-level with no index writeback. Confirm it is wanted, and specify it as
   AST-accurate with graph update — or drop it.
 
-## Architectural syncs — a standing working agreement
+## Architectural syncs and the gap register
 
-The requester wants **recurring architectural syncs with the Software Architect while the crate and
-module seams, and the SDK-versus-library-versus-binary clusters, are being defined.** Structure them
-by checkpoint rather than by calendar, and treat each as producing a recorded decision.
+Two standing mechanisms, both defined in their own documents. **Read both before Phase 1.**
 
-| Sync | Fires when | Input the architect needs | Output |
-|---|---|---|---|
-| **S1 — capability review** | The capability inventory and the five flows are drafted | `analysis/` capabilities table, `01-personas-and-flows.md` | Agreement that the inventory is complete, and a first read on natural groupings |
-| **S2 — vocabulary review** | Immediately after S1, and **before any SPEC prose is written** | The candidate term list extracted from the capability inventory, plus the vocabulary proposed in `discussions/0001` | **A ratified glossary that every later document must use.** Terms added after this are ratified at the next sync as a dated amendment |
-| **S3 — seam pressure test** | Before any clustering is written down as preferred | The sketch in Appendix B, plus the coverage gaps and questions above | Which gaps land where; whether the decomposition stays command-shaped or turns domain-shaped |
-| **S4 — the impact decision** | Before impact requirements are finalised | `discussions/0001-what-impact-analysis-means.md` | The seven axes settled, and whether one traversal serves all projections. Feeds terms back into the glossary |
-| **S5 — library / SDK / binary split** | Before the split is fixed | The AGPL linkability constraint, the deployment duality, read/write asymmetry | The cluster boundaries, and what may not appear in a library's public API. **Also unblocks the engine-library name** (`questions/0001`) |
-| **S6 — the async decision** | During backend screening, **never after** | Which required stores are async-only | An ADR. House rule: retrofitting async through a synchronous trait is a rewrite |
+### Syncs — [`SYNCS.md`](SYNCS.md)
 
-### Why vocabulary gets its own sync, and gets it early
+The requester wants **recurring syncs with the Software Architect while the crate and module seams,
+and the SDK-versus-library-versus-binary clusters, are being defined.** There are **twenty**, grouped
+into four tracks:
 
-Terminology drift is the cheapest problem to prevent and the most expensive to repair, because every
-document written after the drift inherits it. The requester's own SPEC guidance asks for consistency;
-this is the checkpoint that enforces it.
+| Track | Gates | Syncs |
+|---|---|---|
+| **A — Requirements** | the SPEC | capability review · **vocabulary review** · feature-list review · capability wishlist · the impact decision |
+| **B — Architecture and seams** | the crate layout | seam pressure test · abstractions · data models · data flows · interfaces and protocols · library/SDK/binary split · async |
+| **C — Extensibility and prior art** | specific capabilities | grammars and LSP · ast-grep · difftastic · Serena |
+| **D — Engineering practice** | how the project is run | telemetry · testing · CI/CD and supply chain · context files and commit hygiene |
 
-It sits at **S2** rather than at the end for a specific reason: **write the glossary first, not last.**
-A glossary written last is a summary of whatever vocabulary happened to emerge, which is why glossaries
-are so often useless. A glossary written second is a constraint the SPEC has to satisfy.
+**Track D does not block requirements** — with one exception: **telemetry (D1) does**, because the
+read-concurrency property, the latency budget and index staleness are all requirements that cannot be
+verified without it, and an unverifiable requirement is a wish.
 
-`discussions/0001` already contains the hardest case and shows what the sync is for: *"impact
-analysis"* looks like one capability and is a category containing at least four distinct terms
-(**reachability · blast radius · dependence · diff impact**). If S2 ratifies those, then the phrase
-"impact analysis" must not appear in any requirement — and that is exactly the kind of ruling only a
-vocabulary checkpoint produces.
+Five hard gates matter more than the rest, and `SYNCS.md` explains each:
 
-**Bring to S2:** every noun and verb the capability inventory uses for a thing the system stores,
-computes or returns; any term used in two senses; any term that is a category rather than a capability;
-and any place the reference implementation's vocabulary has leaked in and needs replacing.
+1. **A2 (vocabulary) before any SPEC prose** — drift compounds through every later document.
+2. **C3 (difftastic) before A5 (impact)** — a structural-diff decision changes impact's input contract.
+3. **B7 (async) during backend screening, never after** — retrofitting it is a rewrite.
+4. **B3 (data models) before any schema** — the evolution strategy is not retrofittable.
+5. **D1 (telemetry) before the non-functional requirements are called done.**
 
-**The ratified glossary lives in the SPEC's references appendix**
-(`09-references-and-appendices.md`) and is written **before** the other SPEC files, not after. It
-carries dated amendments as later syncs add terms.
+Standing rules for every sync: **you bring requirements, the architect brings structure; never settle
+a seam on your own authority; every sync ends with something written down; every sync files its gaps
+immediately; bring the disliked consequence.**
 
-**Rules for these syncs, so they stay useful:**
+### Gaps — [`GAPS.md`](GAPS.md)
 
-- **You bring requirements; the architect brings structure.** When the two conflict, the requirement
-  is the thing that must be true and the structure is the thing that must change — unless the
-  requirement turns out to be unfounded, in which case say so and amend it.
-- **Never settle a seam in a sync on your own authority.** Your role is to test proposals against
-  requirements and to say what a proposal would make impossible.
-- **Every sync ends with something written down** — a closed question, a new question, an ADR, or an
-  amended requirement. A sync that produces only shared understanding has produced nothing.
-- **Bring the disliked consequence.** House ADR convention; it applies here too. If a proposal has a
-  cost, name it in the sync rather than in review.
+Every sync files its gaps **into the register as it goes, not at the end of the track.** A gap
+remembered is a gap lost.
 
+The register splits the requester's taxonomy into two orthogonal axes, because `accepted` is a
+*disposition* while the others are statements of *confidence*:
+
+- **confidence:** `known` · `discovered` · `inferred` · `presumed` · `hypothetical`
+- **disposition:** `open` · `scheduled` · `accepted` · `refuted` · `closed`
+- **kind:** `capability` · `coverage` · `verification` · `knowledge`
+
+**The binding rule: nothing unverified gets scheduled.** A `presumed` or `hypothetical` gap must be
+promoted to `known` — or `refuted` — before work is scheduled against it. This is the mirror of the
+lesson that cost the prior grounding three wrong verdicts: a capability whose name matches is not
+evidence it exists, and a capability whose absence is assumed is not a gap until someone looks.
+
+`accepted` is **not** `closed` — it is a deliberate, documented hole, and it requires a **revisit
+trigger** or it becomes permanent by default.
+
+Four rhythms: **file on sight** (continuous) · **triage** (start of every sync) · **verification pass**
+(before each track boundary) · **sweep** (at each track boundary). Eight entries are already seeded,
+covering every confidence level.
 ## Deliverables
 
 Under `.claude/plans/code-intelligence/`, on a worktree feature branch (`docs/<slug>`), Conventional
@@ -429,8 +434,10 @@ Commits, never on `main`.
 | `analysis/` | Capabilities · feature clusters · feature gaps |
 | `questions/NNNN-*.md` + `QUESTIONS.md` | One file per architectural fork, plus an index |
 | `discussions/NNNN-*.md` | Multi-axis design questions that are not yet single decisions |
+| `SYNCS.md` | **Maintain it.** Mark syncs done, record their outputs, add syncs as they become necessary |
+| `GAPS.md` | **Maintain it.** File on sight, triage at every sync, verification pass and sweep at track boundaries |
 
-**Already seeded — read both before starting, and extend rather than duplicating:**
+**Already seeded — read all of these before starting, and extend rather than duplicating:**
 
 - `discussions/0001-what-impact-analysis-means.md` — seven axes on which "impact" varies, the
   three-state result contract that is non-negotiable, and a proposed vocabulary
@@ -443,7 +450,12 @@ Commits, never on `main`.
   name the engine until you know what is inside it, and a premature name either gets outgrown or
   degenerates into a `-core` suffix, of which there are none in this estate. Write **`<ENGINE>`**
   wherever the engine library is meant and leave it visibly unresolved. **Do not half-rename a
-  document.** S5 unblocks the engine name.
+  document.** Sync **B6** unblocks the engine name.
+- `questions/0002-where-does-the-backlog-live.md` — there is **no backlog yet**. Until one exists,
+  `scheduled` gaps carry their acceptance criteria inline in `GAPS.md`, so the eventual handoff is a
+  copy rather than a reconstruction.
+- `SYNCS.md` — the twenty syncs, their tracks, their ordering and the five hard gates.
+- `GAPS.md` — the gap taxonomy, the four rhythms, and eight seeded entries.
 
 Create each directory on its first real document — **never scaffold.** Numbering is global per kind,
 so gaps are expected; note them in `README.md` rather than renumbering.

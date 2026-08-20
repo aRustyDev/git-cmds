@@ -25,7 +25,7 @@ identity- or config-switching. Judged acceptable.
 
 **Gate: decide the engine name once the mapping of engine components, module members, domains,
 features and seams is drafted.** Practically, that means after the seam pressure test and the
-library/SDK/binary split (syncs S3 and S5 in `PROMPT.md`).
+library/SDK/binary split — syncs **B1** and **B6** in [`SYNCS.md`](../SYNCS.md).
 
 This is not scheduling convenience. **You cannot name the engine until you know what is inside it.**
 A library name is a claim about scope, and the scope is exactly what the seam work decides. Naming

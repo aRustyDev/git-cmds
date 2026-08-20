@@ -70,27 +70,50 @@ The protocol is a **dirty-team / clean-team split**, specified in full in `PROMP
 ## Architectural syncs
 
 The requester wants **recurring syncs with the Software Architect while the crate and module seams,
-and the SDK-versus-library-versus-binary clusters, are being defined.** `PROMPT.md` defines six
-checkpoint-triggered syncs, each with its required input and its expected output:
+and the SDK-versus-library-versus-binary clusters, are being defined.** [`SYNCS.md`](SYNCS.md) is the
+catalogue — **twenty syncs in four tracks**, because a flat list of twenty checkpoints is not a
+process:
 
-| | Sync | Produces |
+| Track | Gates | Syncs |
 |---|---|---|
-| S1 | capability review | agreement the inventory is complete |
-| S2 | **vocabulary review** | a ratified glossary every later document must use |
-| S3 | seam pressure test | where the coverage gaps land; command-shaped or domain-shaped |
-| S4 | the impact decision | the seven axes settled; one traversal or several |
-| S5 | library / SDK / binary split | cluster boundaries — and unblocks the engine name |
-| S6 | the async decision | an ADR, during backend screening and never after |
+| **A — Requirements** | the SPEC | capability review · **vocabulary review** · feature-list review · capability wishlist · the impact decision |
+| **B — Architecture and seams** | the crate layout | seam pressure test · abstractions · data models · data flows · interfaces and protocols · library/SDK/binary split · async |
+| **C — Extensibility and prior art** | specific capabilities | grammars and LSP · ast-grep · difftastic · Serena |
+| **D — Engineering practice** | how the project is run | telemetry · testing · CI/CD and supply chain · context files and commit hygiene |
 
-Vocabulary sits second on purpose: **write the glossary first, not last.** A glossary written last
-summarises whatever vocabulary happened to emerge, which is why glossaries are usually useless; one
-written second is a constraint the SPEC has to satisfy. Terminology drift is also the cheapest
-problem to prevent and the most expensive to repair, since every document written after the drift
-inherits it.
+**Track D does not block requirements** — except telemetry, which does, because the read-concurrency
+property, the latency budget and index staleness are all requirements that cannot be verified without
+it, and an unverifiable requirement is a wish.
+
+Five hard gates: **vocabulary before any SPEC prose** (drift compounds) · **difftastic before the
+impact decision** (a structural-diff choice changes impact's input contract) · **async during backend
+screening, never after** (retrofitting is a rewrite) · **data models before any schema** (the
+evolution strategy is not retrofittable) · **telemetry before the non-functional requirements are
+called done.**
 
 The standing rule: **the requirements author brings requirements, the architect brings structure, and
 every sync ends with something written down** — a closed question, a new question, an ADR, or an
 amended requirement.
+
+## Capability gaps
+
+[`GAPS.md`](GAPS.md) carries the process and the register. Every sync files its gaps **as it goes**,
+because a gap remembered is a gap lost.
+
+The requester's six-term taxonomy is split into two orthogonal axes, since `accepted` is a
+*disposition* while the rest state *confidence*:
+
+- **confidence:** `known` · `discovered` · `inferred` · `presumed` · `hypothetical`
+- **disposition:** `open` · `scheduled` · `accepted` · `refuted` · `closed`
+- **kind:** `capability` · `coverage` · `verification` · `knowledge`
+
+**Nothing unverified gets scheduled** — a `presumed` or `hypothetical` gap must be promoted to `known`
+or `refuted` first. And `accepted` is not `closed`: it is a deliberate documented hole, and it needs a
+**revisit trigger** or it becomes permanent by default.
+
+Four rhythms — file on sight · triage every sync · verification pass and sweep at each track boundary.
+Eight entries are seeded, covering every confidence level. There is **no backlog yet**
+(`questions/0002`), so `scheduled` entries carry acceptance criteria inline until there is one.
 
 ## Map
 
@@ -98,8 +121,11 @@ amended requirement.
 |---|---|---|
 | `PROMPT.md` | Trigger prompt — write the requirements documentation. Appendices carry the capability list and the module-seam sketch. | ✅ |
 | `README.md` | This file: what the plan is, and the map. | ✅ |
+| `SYNCS.md` | The sync catalogue — twenty syncs, four tracks, ordering and hard gates. Living. | ✅ |
+| `GAPS.md` | Gap taxonomy, lifecycle, the four rhythms, and the register. Eight entries seeded. Living. | ✅ |
 | `discussions/0001-what-impact-analysis-means.md` | **Open.** Seven axes on which "impact" varies; the non-negotiable three-state result contract; a proposed vocabulary. | ✅ |
 | `questions/0001-product-and-crate-naming.md` | **Partially decided.** CLI is `git-ctx`; engine-library name deferred behind the seam-mapping gate. | ✅ |
+| `questions/0002-where-does-the-backlog-live.md` | **Open.** No backlog exists. Recommends deferring with an explicit revisit trigger. | ✅ |
 | `PRD.md` or `prds/` | Problem, why now, functional requirements, out of scope, user flows, dependencies, success criteria. | ⬜ |
 | `specs/NN-*.md` | The SPEC, split across numbered files. | ⬜ |
 | `FEATURES.md` | Flat, ID'd feature list traceable to SPEC requirement IDs. | ⬜ |
