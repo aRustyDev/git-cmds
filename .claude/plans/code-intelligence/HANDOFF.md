@@ -116,9 +116,11 @@ SDKs and consuming binaries under `crates/**`, potentially several binaries over
   same-workspace and same-licence.
 - **`FR-034` is materially de-risked.** gRPC schemas are *declared*, so the capability I flagged as least
   well-defined has its hardest case turn into its easiest for the primary corpus.
-- **`SCALE-1` is uncalibrated** (`GAP-019`). A crate workspace is very unlikely to reach a million nodes.
-  The target should not drop, but two corpora are needed — the real one for correctness, a generated one
-  for the budgets.
+- **`SCALE-1` is uncalibrated and not yet calibratable** (`GAP-019`). A crate workspace is very unlikely
+  to reach a million nodes, and **the target corpus does not exist** — `main` holds three files and this
+  plan. So the target should not drop, and the real-corpus half must be **borrowed** from a comparable
+  workspace that nobody has chosen. Two corpora are needed: a borrowed real one for correctness, a
+  generated one for the budgets.
 
 **3. The re-check of rows 034 and 035 changed neither, and found two things that matter more.**
 
@@ -210,8 +212,11 @@ not on the list, so a clean run is evidence and not proof.
    only chain whose failure mode is a rewrite rather than a delay.**
 3. **Settle `GAP-018` before `B3` writes a schema.** Edges conditional on a feature set is a data-model
    question, it is `known`, and every downstream traversal requirement inherits it.
-4. **Count the symbols in the target workspace** (`GAP-019`). Crude is fine; it needs no platform and it
-   tells you whether `SCALE-1` is calibrated against anything real.
+4. **Choose the borrowed corpus** (`GAP-019`). *(Corrected 2026-08-20 — this previously read "count the
+   symbols in the target workspace", which was an action against nothing: `main` holds three files and this
+   plan, with no `crates/` tree.)* The first corpus this platform is tested against **cannot be its own**,
+   so someone must pick a comparable real Rust workspace. That choice shapes every early fixture, and it
+   has no owner.
 5. ~~Re-check the two `inaccessible` rows I did not re-check.~~ **Done 2026-08-20.** Both dispositions
    stand: the public docs state an *intent* for those two, not a contract, so there is nothing to specify
    against beyond what `FR-034` and `FR-035` already say. The re-check produced two better findings than a

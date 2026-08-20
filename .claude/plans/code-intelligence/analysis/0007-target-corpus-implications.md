@@ -14,8 +14,9 @@
 
 Three facts, each with consequences:
 
-1. **It is a Rust workspace.** So Rust is the primary *target* language, not merely the implementation
-   language — the system analyses codebases of the same shape as itself.
+1. **It will be a Rust workspace.** So Rust is the primary *target* language, not merely the
+   implementation language — the system will analyse codebases of the same shape as itself. **Future
+   tense throughout: none of it is written yet** (see the correction below).
 2. **It is one repository containing many deployable units.** A monorepo, in the sense that matters.
 3. **The deployable units talk to each other over gRPC/HTTP.** So service-to-service contracts are
    **intra**-repository, not inter-repository.
@@ -135,24 +136,48 @@ declaration for Rust has to name these:
 declaration, and declaring "trait implementations: yes; macro-generated items: no" is exactly what
 `FR-003` exists to force.
 
-## What becomes possible: the system can analyse itself
+## ⚠️ The target corpus does not exist yet — corrected 2026-08-20
 
-The target corpus is the same shape as this project's own repository, so the platform can index
-`git-cmds`. That is worth more than a convenience:
+**This whole document describes a corpus that has not been written.** `main` contains `.gitignore`,
+`LICENSE`, `README.md` and this plan. There is no `crates/` tree, no library, no binary, and no gRPC
+service definition.
 
-- **A real test corpus exists from day one**, with hand-verifiable expectations, which `QA-1` requires
-  and which is otherwise expensive to build.
-- **`SCALE-1`'s calibration has a starting point**, even if it is a small one (`GAP-019`).
-- **The feature-flag problem is self-demonstrating.** This project's own store seam is feature-flagged by
-  `CON-7`, so `GAP-018` can be reproduced against the platform's own source rather than a synthetic
-  fixture.
-- **Dogfooding pressures the right requirements.** The developer flow (`specs/01` §E) stops being
-  hypothetical.
+An earlier draft of this section treated the corpus as available and drew conclusions from that. It was
+wrong, and the corrections matter because two of them were recommendations someone might have acted on:
 
-**One caution.** A system verified primarily against its own source risks fitting to Rust and to a crate
-workspace — which is a real risk given that `FR-005`'s declarative formats and the polyglot case are both
-weaker in the requirements than Rust now is. `QA-6`'s per-language conformance suites are the guard, and
-they need a non-Rust language exercised for that guard to mean anything.
+| Claimed | Actually |
+|---|---|
+| "A real test corpus exists from day one" | **No.** `QA-1`'s hand-verified fixtures are as expensive as they ever were. |
+| "`SCALE-1`'s calibration has a starting point" | **No.** There is nothing to measure. See the re-scoped `GAP-019`. |
+| "`GAP-018` can be reproduced against the platform's own source" | **Not yet.** The feature-flagged store seam that would demonstrate it is a requirement, not code. |
+| "A crude symbol count would settle the order of magnitude today" | **False, and this was the worst of the four** — it read as an action item and there is nothing to count. |
+
+**What this does not invalidate.** Every *requirement* implication in the sections above stands, because
+each derives from the corpus's stated **shape** rather than from its contents: a Rust workspace with
+feature flags makes edges conditional whether or not the workspace has been written; a monorepo makes
+repository-level authorisation inadequate the same way; gRPC declares schemas whenever it arrives. The
+answer is a design input about what the corpus **will be**, and that is a legitimate basis for
+requirements — it is not a basis for measurement.
+
+## What becomes possible once the corpus exists
+
+Stated as future-conditional, which is what it is:
+
+- **Self-hosting will give a test corpus with hand-verifiable expectations**, which `QA-1` needs and which
+  is otherwise expensive. Not available now.
+- **The feature-flag problem will be self-demonstrating**, because `CON-7` feature-flags this project's
+  own store seam — so `GAP-018` will be reproducible against real source rather than a synthetic fixture.
+- **Dogfooding will pressure the developer flow** (`specs/01` §E), which is currently entirely
+  hypothetical and has no user.
+
+**The consequence for right now, and it is a real one:** the first corpus this platform is tested against
+**cannot be its own**. It has to be borrowed — another workspace in the estate, or a public repository of
+comparable shape. That is a choice nobody has made, and it determines what the early fixtures look like.
+
+**One caution that survives unchanged.** A system verified primarily against its own source would risk
+fitting to Rust and to a crate workspace — a real risk given that `FR-005`'s declarative formats and the
+polyglot case are both weaker in the requirements than Rust now is. `QA-6`'s per-language conformance
+suites are the guard, and they need a non-Rust language exercised for that guard to mean anything.
 
 ## Verification
 
@@ -172,9 +197,13 @@ they need a non-Rust language exercised for that guard to mean anything.
 
 - **The Rust extraction difficulties are stated from language knowledge, not measured.** Nobody has
   attempted extraction against this corpus, so "macros are the largest question" is judgement.
-- **`GAP-019` asserts that a crate workspace is well under a million nodes without measuring one.**
-  Cheap to check, and not checked — the platform that would measure it does not exist, but a crude
-  count would settle the order of magnitude today.
+- **`GAP-019` asserts that a crate workspace is well under a million nodes without measuring one**, and
+  **it cannot be measured against the target corpus, because the target corpus has not been written.**
+  Calibration requires borrowing a comparable real workspace, which is a choice nobody has made.
+- **The corpus's shape is a stated intention, not an observed fact.** *"Potentially multiple binaries"* is
+  the requester's own hedge, and the `crates/**` tree is empty — so every implication here is contingent
+  on the project being built the way it was described. If it is built differently, this document is the
+  first thing to re-derive.
 - **"Potentially multiple binaries" is conditional.** The requester said *potentially*. If the
   microservice pattern does not materialise, `FR-008`'s promotion and `FR-043`/`FR-044`'s
   member-unit change are premature — though both are cheap and neither is wrong.
@@ -183,6 +212,12 @@ they need a non-Rust language exercised for that guard to mean anything.
 
 ## Amendments
 
+- **2026-08-20 (same day, corrected)** — **The target corpus does not exist yet**; `main` holds three
+  files and this plan, with no `crates/` tree. An earlier draft treated it as available and drew four
+  conclusions from that, one of which — "a crude symbol count would settle the order of magnitude today" —
+  was an actionable recommendation against nothing. All four corrected in place. The requirement
+  implications stand, because they derive from the corpus's stated **shape** rather than its contents;
+  the measurement claims do not. `GAP-019` re-scoped accordingly.
 - **2026-08-20** — Created, from the requester's answer on the target corpus.
 
 ## Related

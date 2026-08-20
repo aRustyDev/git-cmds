@@ -147,16 +147,18 @@ repository actually hits, rather than a round number nothing reaches.
 **Verification:** a generated corpus at each target; budgets asserted at v1 targets and reported
 (not asserted) at stretch.
 
-**Amended 2026-08-20 — this target is uncalibrated against the primary corpus.** The target corpus is a
-Rust workspace of library and binary crates (`analysis/0007`), which is very unlikely to reach one million
-nodes. The v1 figure was derived from "a large polyglot monorepo reaches single-digit millions of
-addressable symbols", which describes a different kind of repository.
+**Amended 2026-08-20 — this target is uncalibrated, and cannot yet be calibrated.** The target corpus
+will be a Rust workspace of library and binary crates (`analysis/0007`), which is very unlikely to reach
+one million nodes. The v1 figure was derived from "a large polyglot monorepo reaches single-digit millions
+of addressable symbols", which describes a different kind of repository.
 
 **The target is not lowered.** A platform whose scale target is its own repository will not survive its
-second corpus. But it means the budgets in this file are currently validated against a generated corpus
-rather than a real one, and may be met trivially on the corpus that actually matters. **Two corpora are
-needed:** the real workspace, for correctness and calibration, and a generated one at `SCALE-1`, for the
-budgets. Filed as `GAP-019`.
+second corpus. But two things follow. First, the budgets here would be validated against a generated
+corpus rather than a real one, and may be met trivially on the corpus that actually matters. Second —
+and this is the part that has no owner — **the target corpus has not been written**, so the real-corpus
+half cannot be this project's own repository. It must be a **borrowed** comparable workspace, and nobody
+has chosen one. **Two corpora are needed:** a borrowed real workspace for correctness and calibration, and
+a generated one at `SCALE-1` for the budgets. Filed as `GAP-019`.
 
 ### SCALE-2 — The service shape MUST serve 50 human principals and 10,000 agent principals. *(assumed)*
 

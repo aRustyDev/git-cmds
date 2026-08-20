@@ -362,19 +362,25 @@ it out substantially, and A4 exists specifically to generate `hypothetical` entr
   **before any schema**. `FR-024` carries a dated open note. Interacts with `FR-026`–`FR-028`, since diff
   impact inherits the same defect.
 
-### GAP-019 — The scale target is uncalibrated against the primary corpus
+### GAP-019 — The scale target is uncalibrated, and there is nothing yet to calibrate it against
 - **kind:** verification · **confidence:** `inferred` · **disposition:** `open`
-- **source:** `analysis/0007`, 2026-08-20
+- **source:** `analysis/0007`, 2026-08-20 · **re-scoped the same day**
 - **missing:** `SCALE-1` targets one million nodes per repository, derived from what a large polyglot
-  monorepo reaches. The primary corpus is a Rust crate workspace, which is very unlikely to reach it. So
-  the budgets in `specs/03` are validated against a generated corpus and may be met trivially on the
-  corpus that actually matters.
+  monorepo reaches. The primary corpus will be a Rust crate workspace, which is very unlikely to reach it.
+  So the budgets in `specs/03` would be validated against a generated corpus and may be met trivially on
+  the corpus that actually matters.
 - **consequence:** two opposite risks. Budgets that look comfortably met because the real corpus is small;
   and correctness work calibrated on a corpus too small to expose the problems `SCALE-1` was written for.
-- **verification:** the inference rests on the premise that a crate workspace is well under a million
-  nodes. **Nobody has counted.** A crude symbol count over the target workspace would settle the order of
-  magnitude today, without the platform existing.
+- **verification:** **⚠️ re-scoped 2026-08-20.** This entry originally said *"a crude symbol count over
+  the target workspace would settle the order of magnitude today, without the platform existing"*. **That
+  was false: the target workspace does not exist.** `main` holds three files and this plan; there is no
+  `crates/` tree. So the verification is not a count — it is a **choice**: pick a comparable real Rust
+  workspace to calibrate against, then count that. Nobody has picked one.
+- **consequence of the re-scope, which is a new finding:** the first corpus this platform is tested against
+  **cannot be its own**. It must be borrowed, and which repository that is determines what every early
+  fixture looks like. That is an unowned decision, not a measurement.
 - **relates:** `SCALE-1` carries a dated amendment. Resolution is two corpora, not a changed target.
+  Blocks nothing today; blocks any claim that a budget has been validated.
 
 ### GAP-020 — Crate names taken from the module-seam sketch would reproduce reference tool names
 - **kind:** knowledge · **confidence:** `known` · **disposition:** `open`
@@ -435,8 +441,9 @@ and several of the highest-value entries are unverified and therefore ineligible
 
 - **`GAP-007`** — one check of whether derived identifiers are externally visible. Best outcome is
   refutation, which removes the hardest algorithmic requirement in the corpus.
-- **`GAP-019`** — a crude symbol count over the target workspace settles the order of magnitude today,
-  with no platform needed, and tells us whether `SCALE-1` is calibrated against anything real.
+- **`GAP-019`** — pick the borrowed corpus. It cannot be this project's own workspace, which does not
+  exist, so someone must choose a comparable real Rust workspace; that choice shapes every early fixture.
+  *(Re-scoped 2026-08-20 — this previously read "a crude symbol count settles it today", against nothing.)*
 
 **And one to act on early because it is upstream of a schema:** `GAP-018`. It is `known`, it is derived
 rather than speculated, and `B3` cannot write a data model without settling it.
