@@ -253,18 +253,50 @@ story matters most, and the one where "drop and rebuild" is not an available rec
 **Verification:** `COR-6`, plus a durability test asserting job state and audit records survive a
 process restart and a backend restart.
 
-### EXT-4 — The search slot MAY be provided by an external search index. *(assumed)*
+### EXT-4 — The search slot MUST provide lexical ranking. *(assumed)*
 
-**SHOULD.** Optional. Capability profile: index documents with fields; query with filters and ranking;
-report ranked results with scores.
+**MUST** *(amended 2026-08-20 — was a SHOULD with no consumer)*. Capability profile: index documents
+with fields; **tokenise and rank by lexical relevance of the BM25 family**; **update, replace and delete
+a single document without rebuilding the index**; query with filters; report ranked results with scores.
 
-**Candidate targets, `presumed`:** **OpenSearch** (Apache-2.0), or an equivalent.
+**Candidate target, `presumed`:** **OpenSearch** (Apache-2.0).
 
-**No required capability consumes this slot** (`analysis/0001`, store cross-tabulation; `GAP-011`). It
-is specified because the requester named it, and flagged because an abstraction with no consumer cannot
-be validated and building one is speculative.
+**Why this changed.** The requester dropped the separate text-search slot on 2026-08-20 and placed
+lexical ranking here. That does three things:
 
-**Verification:** if implemented, `COR-6`. If not implemented, the absence is recorded, not hidden.
+1. **It gives this slot the consumer it lacked.** `FR-017` requires a lexical index and `FR-021` has a
+   lexical lane; both are now served here. `GAP-011` is closed for this slot.
+2. **It resolves a hazard rather than inheriting one.** The per-document-update clause above was
+   mandatory in the retired text-search slot because the grounding measured an engine offering only
+   whole-index create, drop and query — so every run re-tokenised the corpus, contradicting `PERF-6`.
+   A general-purpose search engine satisfies per-document update natively, so relocating here **removes**
+   that risk instead of moving it onto the graph slot.
+3. **It widens the graph candidate set**, because lexical ranking is no longer a graph-engine
+   requirement (`EXT-1`, `analysis/0008`).
+
+**The cost, stated because it is real.** The lexical lane now crosses a network hop in the service shape,
+and the embedded half of this slot is **unnamed** — there is no embedded OpenSearch, so `REV-2`'s
+two-implementation rule needs a pure-Rust lexical index that the candidate list does not contain
+(`GAP-021`). Until it does, this slot has one implementation and is therefore not yet a proven seam.
+
+**Verification:** `COR-6`, including an incremental case asserting that updating one document does not
+re-tokenise the corpus.
+
+### EXT-5 — The system WON'T provide a separate text-search slot. *(satisfied by design)*
+
+**WON'T** *(decided 2026-08-20)*. The slot is removed; its capability profile moved into `EXT-4`, which
+is now required rather than optional.
+
+**What this does not do:** it does not remove `FR-017`. A lexical index is still required — it is placed
+in the search slot rather than in a slot of its own. Dropping the slot without relocating the requirement
+would have silently removed a lane from `FR-021`, and that would have been a capability reduction
+disguised as a simplification.
+
+**Revisit trigger:** if the search slot's embedded half (`GAP-021`) turns out to be best served by a
+dedicated lexical engine rather than a general-purpose search engine, this slot returns — as the embedded
+half of `EXT-4` rather than as a seventh slot.
+
+**Verification:** none — a recorded non-requirement.
 
 ### EXT-5 — The text-search slot MAY be provided by an external lexical index. *(assumed)*
 

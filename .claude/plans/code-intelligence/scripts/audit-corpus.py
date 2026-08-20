@@ -191,17 +191,38 @@ DENY_CONST = [
 launder_hits = []
 # GitNexus/PolyForm are permitted ONLY in 06-constraints.md (licence provenance)
 PROVENANCE_OK = {"06-constraints.md", "09-references-and-appendices.md"}
+# A store product the REQUESTER put on the candidate list has to be nameable in the screening record,
+# on the same terms as Qdrant or OpenSearch. Naming a public third-party dependency is not reproducing
+# a reference-internal identifier. Scoped to the screening document, and printed rather than silent.
+TERM_EXEMPT = {
+    "0008-graph-slot-screening.md": {
+        t: "requester-supplied store candidate; naming it is EXT-8/EXT-9 content"
+        for t in ("lbug", "ladybug", "ladybugdb")
+    },
+}
 for f in SPECS + ANALYSIS + [FEATURES]:
     t = f.read_text()
+    low = t.lower()          # case-insensitive: a case-sensitive denylist is a leaky denylist
     for term in DENY:
-        if term in t:
-            if term in ("gitnexus", "GitNexus", "PolyForm-Noncommercial", "Akon Labs") and f.name in PROVENANCE_OK:
-                notes.append(f"{f.name}: '{term}' present (permitted: licence provenance)")
-                continue
-            launder_hits.append(f"{f.name}: {term!r}")
+        if term.lower() not in low:
+            continue
+        if term in ("gitnexus", "GitNexus", "PolyForm-Noncommercial", "Akon Labs") and f.name in PROVENANCE_OK:
+            notes.append(f"{f.name}: '{term}' present (permitted: licence provenance)")
+            continue
+        exempt = TERM_EXEMPT.get(f.name, {})
+        if term.lower() in exempt:
+            notes.append(f"{f.name}: '{term}' present (permitted: {exempt[term.lower()]})")
+            continue
+        launder_hits.append(f"{f.name}: {term!r}")
     for pat in DENY_CONST:
         for mm in re.finditer(pat, t):
             launder_hits.append(f"{f.name}: constant {mm.group(0)!r}")
+
+# Control: the denylist must still fire on an unexempted document.
+if "lbug" not in (SPECS[0].read_text().lower() if SPECS else ""):
+    probe_ok = any(term.lower() in "a graph built on lbug internals" for term in DENY)
+    check("laundering check discriminates (control must fire)", probe_ok,
+          "control matched a denylisted term" if probe_ok else "DENYLIST DID NOT MATCH")
 check("laundering: no reference-internal identifier or carried constant", not launder_hits,
       "; ".join(launder_hits) if launder_hits else f"{len(DENY)} terms + {len(DENY_CONST)} patterns clean")
 

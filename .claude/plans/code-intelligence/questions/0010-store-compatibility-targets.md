@@ -44,7 +44,26 @@ above as a **candidate**, not a selection.
 
 ## Consequences of the list that need answers
 
-### C1 — `FR-017` still requires a lexical index, and the slot that held it is gone
+### C1 — **Decided 2026-08-20: OpenSearch provides lexical ranking**
+
+`FR-017`'s lexical index moves into the **search slot**. `EXT-4` becomes **MUST** and gains the consumer
+it lacked; `EXT-5` becomes an explicit `WON'T` with a revisit trigger; `GAP-011` closes for the search
+half and stays open for key-value.
+
+**Three consequences, two of them good:**
+
+- ✅ **It resolves C2 instead of relocating it.** Per-document lexical update was mandatory because the
+  grounding measured an engine that could only rebuild its whole index. A general-purpose search engine
+  satisfies that natively, so the hazard is removed rather than moved onto the graph slot.
+- ✅ **It widens the graph candidate set**, since lexical ranking is no longer a graph-engine requirement.
+  `analysis/0008` screens the graph slot on that basis.
+- ⚠️ **The embedded half is unnamed.** There is no embedded OpenSearch, and the candidate list contains no
+  pure-Rust lexical index — so the slot has one implementation and is **not yet a proven seam** under
+  `REV-2`. Worse, the local shape then has no lexical lane at all, which makes the two deployment shapes
+  differ in *capability* rather than configuration — uncomfortably close to what `CON-2` forbids. Filed as
+  `GAP-021`, and it needs a named candidate rather than a screening pass.
+
+**The reasoning kept for the record** — the three options as they stood before the decision:
 
 `FR-017` requires a lexical index; `FR-021`'s hybrid search has a lexical lane. Removing the
 text-search slot does not remove that requirement — it **relocates** it, to either the graph engine or

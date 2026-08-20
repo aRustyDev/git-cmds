@@ -25,8 +25,8 @@ discovered to force a rewrite.
 | 1 | **Graph** | typed directed edges between typed nodes with properties; openCypher-shaped read queries; bounded variable-length paths; filter by node type and edge class **in** the query; bulk load; delete a subgraph by identity; generation isolation for reads | lexical ranking; vector search | 24 read capabilities, 12 write |
 | 2 | **Vector** | store fixed-width float vectors keyed by node identity; nearest-neighbour by cosine distance with a limit and a distance threshold; delete by key; count | payload filtering; multiple named vectors per key | 2 read, 2 write |
 | 3 | **Relational** | transactional read and write; unique and foreign-key constraints; ordered pagination; append-only insert; durable job records | — | 11 read, 7 write |
-| 4 | **Search** | index documents with fields; query with filters; ranked results with scores | aggregations | **none** |
-| 5 | **Text-search** | tokenise and index text per document; lexical ranking; stemming policy; delete by document; **per-document update** | phrase and proximity queries | 1 read, 2 write |
+| 4 | **Search** | index documents with fields; query with filters; ranked results with scores; **plus everything from the retired slot 5: tokenise and index text per document, lexical ranking, a stemming policy, delete by document, and per-document update** | aggregations; phrase and proximity queries | **1 read, 2 write** — `FR-017`, `FR-021`'s lexical lane |
+| 5 | ~~**Text-search**~~ | **slot dropped 2026-08-20.** Profile merged into slot 4; `EXT-5` is now a recorded `WON'T` | — | — |
 | 6 | **Key-value** | get; set with expiry; delete | compare-and-set | **none** |
 
 ### Embedded versus networked, per slot
@@ -36,11 +36,18 @@ discovered to force a rewrite.
 | 1 | Graph | in-process property-graph engine, single file or directory | separate openCypher-speaking service | **yes, both** (`REV-2`) |
 | 2 | Vector | in-process index, persisted alongside the graph | separate vector service — **Qdrant** (Apache-2.0), already run in this estate | **yes, both** |
 | 3 | Relational | embedded single-file SQL engine | networked SQL server | **yes, both** |
-| 4 | Search | — | **OpenSearch** (Apache-2.0) or equivalent | no — no consumer |
-| 5 | Text-search | lexical index inside the graph engine, or an in-process index | trigram code-search service such as **Zoekt** (Apache-2.0), or slot 4's engine | conditional — see below |
+| 4 | Search | **unnamed — `GAP-021`** | **OpenSearch** (Apache-2.0) | **yes, and it now carries `FR-017`** |
+| 5 | ~~Text-search~~ | dropped 2026-08-20 | — | — |
 | 6 | Key-value | in-process map | networked key-value server | no — no consumer |
 
 ### The three findings this matrix produces
+
+> **Amended 2026-08-20.** Findings 1–3 below were written when six slots existed and the search slot had
+> no consumer. The requester has since **dropped text-search and placed lexical ranking in the search
+> slot**. Net effect: finding 1 is now half-true (key-value only), finding 2 is **void** — slot 5's
+> optionality is moot because slot 5 is gone — and finding 3 is **resolved rather than relocated**, since
+> a general-purpose search engine satisfies per-document update natively. The findings are kept as written
+> with this note, because the reasoning is what justifies the new placement.
 
 **Finding 1 — two slots have no consumer.** Slots 4 and 6 are required by the capability list and
 consumed by no capability in `analysis/0001`. An abstraction with no consumer cannot be validated,
@@ -80,11 +87,24 @@ These are the specific things that make a slot's abstraction leak. Each is a des
 
 ## The async screening record
 
-### Status: not started
+### Status: graph slot screened on registry evidence 2026-08-20; concurrency still unscreened
 
-`EXT-9` requires a screening record per candidate. **There is none**, because no candidate has been
-selected and no client has been examined. This section defines the procedure and records the one
-inference strong enough to be worth stating, so sync **B7** starts from something rather than nothing.
+**The candidate list arrived on 2026-08-20** (`questions/0010`), and the graph slot's first pass is in
+[`0008-graph-slot-screening.md`](0008-graph-slot-screening.md) — licence, maintenance, adoption and shape
+for all ten candidates, with four declined on specific disqualifying facts and one, `kin`, unidentifiable.
+
+**It does not answer the async question.** Client concurrency model is not in registry metadata, so
+nothing below has changed: `EXT-9`'s concurrency record remains empty and `questions/0003` remains
+unanswerable from what has been screened.
+
+**The cheapest route to the async answer is now clear, and it is not the graph slot.** If **both** vector
+candidates — Lance and Qdrant — are async-only, the trait is async by that slot alone, whatever the graph
+slot turns out to be. That is two checks rather than ten, and it unblocks **B7** on its own. The relational
+pair is the counterweight worth knowing about: PostgreSQL has a genuine blocking Rust client rather than a
+facade over a runtime, so that pair does **not** force the answer either way.
+
+This section defines the procedure and records the one inference strong enough to be worth stating, so
+sync **B7** starts from something rather than nothing.
 
 ### The procedure
 

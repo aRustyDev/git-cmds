@@ -250,7 +250,12 @@ it out substantially, and A4 exists specifically to generate `hypothetical` entr
   `presumed` candidates, so this is an inconvenience rather than a blocker by design.
 
 ### GAP-011 — Two required store slots have no consuming capability
-- **kind:** coverage · **confidence:** `known` · **disposition:** `open`
+- **kind:** coverage · **confidence:** `known` · **disposition:** **partially closed 2026-08-20**
+- **update, 2026-08-20:** **the search slot now has a consumer and this half is closed.** The requester
+  dropped the text-search slot and placed `FR-017`'s lexical index in the search slot, which makes
+  `EXT-4` required rather than optional. It also *resolved* the per-document-update hazard rather than
+  relocating it, since a general-purpose search engine satisfies that natively. **The key-value half
+  remains fully open** — naming Valkey, Redis and RocksDB for it does not create a consumer.
 - **source:** `analysis/0001` store cross-tabulation, 2026-08-20
 - **missing:** the capability list requires a swappable **search index** and **key-value store**. Counting
   the capability inventory, **no capability reads or writes either.**
@@ -397,6 +402,36 @@ it out substantially, and A4 exists specifically to generate `hypothetical` entr
 - **relates:** owned by **B1**/**B6** (whoever fixes the layout). `CON-1` carries a clause; `CON-9`'s
   placeholder discipline is the adjacent rule. **The laundering denylist in `scripts/audit-corpus.py` will
   not catch this**, because it audits this corpus and not the future workspace.
+
+### GAP-021 — The search slot has no embedded implementation, so it is not yet a proven seam
+- **kind:** coverage · **confidence:** `known` · **disposition:** `open`
+- **source:** the requester's decision of 2026-08-20 placing lexical ranking in the search slot
+- **missing:** `REV-2` requires two implementations per slot — one embedded, one networked — because two
+  is what proves a seam is real and one makes it a wrapper. The search slot now carries `FR-017`'s lexical
+  index and has exactly **one** candidate, OpenSearch, which is networked-only. **There is no embedded
+  OpenSearch**, and the supplied candidate list contains no pure-Rust lexical index.
+- **consequence:** the local shape has no lexical lane at all, so `FR-021`'s hybrid search degrades to
+  traversal-plus-semantic there — which `FR-021` permits and requires it to report, but which makes the
+  two deployment shapes differ in *capability* rather than only in configuration. That is uncomfortably
+  close to what `CON-2` forbids.
+- **relates:** owned by **B2**. `EXT-4` carries the note. Closing it needs one named embedded candidate;
+  the requester's list does not contain one, so this is a genuine addition rather than a screening task.
+
+### GAP-022 — An existing crate may already be the graph slot's abstraction, and no sync owns assessing it
+- **kind:** knowledge · **confidence:** `discovered` · **disposition:** `open`
+- **source:** the graph-slot screen, 2026-08-20 (`analysis/0008`)
+- **missing:** an assessment of `grust-graph` — MIT OR Apache-2.0, updated 2026-08-06 — which describes
+  itself as *"a backend-neutral property graph facade for Rust"* and ships optional backends for nine
+  engines plus an in-memory implementation, with Cypher support. A sibling crate provides a Ladybug
+  backend. **That is `EXT-1`'s seam, existing, as prior art.**
+- **consequence:** if it is usable, a substantial part of the most consequential abstraction in the system
+  may not need building. If it is not, reading it is still the cheapest available education on where such
+  a seam leaks. Either way, designing ours without looking at it is waste.
+- **verification:** discovered from registry metadata only. Nothing was read or run. It is young (first
+  published 2026-06-07) and lightly adopted (1,531 downloads), and its backend list does **not** include
+  Neo4j — so it is not a drop-in answer and should not be treated as one.
+- **relates:** Track **C** material under the shared outcome vocabulary — adopt · vendor · emulate · take
+  the UX only · decline. **No sync currently owns it**; it fits alongside C2–C4 and needs adding.
 
 ## Triage and verification pass — 2026-08-20
 
