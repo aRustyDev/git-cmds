@@ -43,7 +43,7 @@ identifiers they alias.
 
 - The requirements author **may** read the prior grounding research: the findings, research and
   questions documents and the licensing decision record under
-  `~/repos/woven/forks/gitnexus/.claude/plans/hosted-service/`.
+  `gitnexus/.claude/plans/hosted-service/`.
 - **Nobody** may read `gitnexus/src/**`, its tests, or its schema files.
 - No implementer may read the grounding research either, because it quotes internal identifiers.
   Implementers work **only** from this corpus.
@@ -142,7 +142,7 @@ executable check asserts no analysis code branches on a deployment-shape flag.
 ### CON-7 — House Rust conventions bind. *(operational)*
 
 **MUST.** These are settled house practice and are not open questions. Read
-`~/repos/woven/forks/muster/.claude/rules/{00-non-negotiables,04-rust-conventions}.md` by absolute
+`muster/.claude/rules/{00-non-negotiables,04-rust-conventions}.md` by absolute
 path — a repository's own rules do not load outside it.
 
 1. **All persistence behind a repository trait, with no concrete datastore type in the public API**

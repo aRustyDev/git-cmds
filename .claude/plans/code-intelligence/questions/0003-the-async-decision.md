@@ -10,7 +10,7 @@ Does the trait through which all persistence is reached expose asynchronous or s
 
 ## Why it cannot wait
 
-House rule, from `~/repos/woven/forks/muster/.claude/rules/04-rust-conventions.md`:
+House rule, from `muster/.claude/rules/04-rust-conventions.md`:
 
 > *If any candidate backend is async-only, the trait is async and everything above it inherits that.
 > Resolve during screening, not after — retrofitting async through a synchronous trait is a rewrite.*

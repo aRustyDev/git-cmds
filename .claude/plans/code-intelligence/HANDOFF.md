@@ -9,7 +9,7 @@
 **I am clean-room tainted and must not write the implementation.**
 
 I read the prior grounding research — the findings, research and questions documents and the licensing
-decision record under `~/repos/woven/forks/gitnexus/.claude/plans/hosted-service/`. Those documents
+decision record under `gitnexus/.claude/plans/hosted-service/`. Those documents
 quote reference-implementation internal identifiers. Anyone who reads them becomes unable to serve on
 the clean team.
 

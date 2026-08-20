@@ -42,7 +42,7 @@ A mature reference implementation of this capability already exists — **GitNex
 and hosting it was the original plan. That plan is blocked. GitNexus is **PolyForm Noncommercial
 1.0.0**, and its licensor confirmed in writing that internal use at a for-profit company requires a
 paid commercial licence. The full determination, with quoted clauses and primary sources, is in
-`~/repos/woven/forks/gitnexus/.claude/plans/hosted-service/FINDINGS.md` §0 (on `main`).
+`gitnexus/.claude/plans/hosted-service/FINDINGS.md` §0 (on `main`).
 
 `gitnexus/.claude/plans/hosted-service/adrs/0001-gitnexus-licensing-path.md` framed four options —
 buy, adopt permissive alternatives, stop, or managed SaaS. **A clean-room Rust implementation is
@@ -73,7 +73,7 @@ The protocol is a **dirty-team / clean-team split**, specified in full in `PROMP
    K8s microservice (external stores, authenticated, ~20–50 humans plus up to ~10 000 mostly
    read-only agents). Not two configurations — two points a single design must reach.
 3. **The house Rust conventions already answer several architectural questions.**
-   `~/repos/woven/forks/muster/.claude/rules/{00-non-negotiables,04-rust-conventions}.md` establish
+   `muster/.claude/rules/{00-non-negotiables,04-rust-conventions}.md` establish
    persistence behind a repository trait with no concrete datastore type in the public API,
    per-backend feature flags with an in-memory default, `thiserror` in libraries and `anyhow` in
    binaries, and that the async decision must be resolved during screening because retrofitting it
@@ -193,13 +193,13 @@ mapping and are cheaper than renumbering — see `specs/09` Appendix D.
 
 ## Related
 
-- `~/repos/woven/forks/gitnexus/.claude/plans/hosted-service/` — the grounding research this plan
+- `gitnexus/.claude/plans/hosted-service/` — the grounding research this plan
   inherits: `FINDINGS.md` (licensing verdict, then the evidence), `RESEARCH.md` (~1,830 lines of
   archaeology across five lanes), `QUESTIONS.md`, and `adrs/0001-gitnexus-licensing-path.md`.
-- `~/repos/woven/forks/muster/` — the estate's target pattern for Rust workspaces and for
+- `muster/` — the estate's target pattern for Rust workspaces and for
   plan-scoped specs and PRDs. Its `.claude/plans/orrery/{specs,prds,questions,research}/` is the
   format to mirror.
-- `~/repos/woven/infrastructure/infrastructure/docs/src/dev/specs/` — graduated specs, and the
+- `infrastructure/docs/src/dev/specs/` — graduated specs, and the
   source of the requirement-ID and `## Verification` conventions.
 - `~/.claude/rules/plans-and-docs.md` — governs this layout, and the aspirational-vs-graduated
   distinction for specs and PRDs.

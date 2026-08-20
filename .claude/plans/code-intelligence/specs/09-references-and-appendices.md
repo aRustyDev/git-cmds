@@ -71,14 +71,18 @@ Its stated criteria for a well-formed requirement are: unambiguous · complete �
 
 ### Estate documents this corpus depends on
 
-Read by absolute path — a repository's own rules do not load outside it.
+**Paths below are given relative to their own repository, not to this one.** Locations within the
+organisation's estate are deliberately omitted — this repository is public, and its internal layout is
+not. A reader inside the organisation knows where these repositories live; a reader outside does not need
+to. Note that a repository's own rules do **not** auto-load outside it, so these must be opened
+explicitly rather than relied on to be present.
 
 | Document | Why it is load-bearing here |
 |---|---|
-| `~/repos/woven/forks/muster/.claude/rules/00-non-negotiables.md` | Persistence behind a repository trait; no concrete datastore type in the public API; constraints enforced rather than documented (`CON-7`, `REV-1`, `QA-0`) |
-| `~/repos/woven/forks/muster/.claude/rules/04-rust-conventions.md` | Typed errors in libraries; newtyped identifiers; per-backend feature flags with an in-memory default; **the async rule** (`CON-3`, `CON-7`, `EXT-9`) |
-| `~/repos/woven/forks/muster/.claude/rules/02-decision-records.md` | MADR; global numbering; immutable once accepted; **record the consequence you dislike** (`QA-21`) |
-| `~/repos/woven/forks/muster/.claude/rules/10-docs-structure.md` | Where a durable fact lives; directories created on first real document |
+| `muster/.claude/rules/00-non-negotiables.md` | Persistence behind a repository trait; no concrete datastore type in the public API; constraints enforced rather than documented (`CON-7`, `REV-1`, `QA-0`) |
+| `muster/.claude/rules/04-rust-conventions.md` | Typed errors in libraries; newtyped identifiers; per-backend feature flags with an in-memory default; **the async rule** (`CON-3`, `CON-7`, `EXT-9`) |
+| `muster/.claude/rules/02-decision-records.md` | MADR; global numbering; immutable once accepted; **record the consequence you dislike** (`QA-21`) |
+| `muster/.claude/rules/10-docs-structure.md` | Where a durable fact lives; directories created on first real document |
 | `~/.claude/rules/plans-and-docs.md` | Aspirational (`.claude/plans/**`) versus graduated (`docs/src/**`) specs — why this corpus is aspirational and what graduation would mean |
 | `~/.claude/rules/tool-call-plumbing.md` | The measured plumbing constraints that shaped several verification methods, notably positive controls on absence claims (`QA-15`) |
 
@@ -86,15 +90,15 @@ Read by absolute path — a repository's own rules do not load outside it.
 
 | Exemplar | Followed for |
 |---|---|
-| `~/repos/woven/forks/muster/.claude/plans/orrery/specs/00-overview.md` … `05-testing-criteria.md` | The multi-file SPEC split and the non-functional vocabulary |
-| `~/repos/woven/forks/muster/.claude/plans/orrery/prds/00-orrery-engine.md` | The PRD outline |
-| `~/repos/woven/infrastructure/infrastructure/docs/src/dev/specs/cluster-egress-requirements.md` | The requirement-ID form and the `## Verification` proven/not-proven split |
-| `~/repos/woven/infrastructure/infrastructure/.claude/plans/airgap-bootstrap/{PRD.md,SPEC.md}` | Out-of-scope **by name**, and `## How we will know we were wrong` |
-| `~/repos/woven/forks/muster/.claude/plans/quality-review/01-gap-matrix.md` | The gap-matrix vocabulary `✓ covered · ◐ partial · ✗ gap · — N/A` |
+| `muster/.claude/plans/orrery/specs/00-overview.md` … `05-testing-criteria.md` | The multi-file SPEC split and the non-functional vocabulary |
+| `muster/.claude/plans/orrery/prds/00-orrery-engine.md` | The PRD outline |
+| `infrastructure/docs/src/dev/specs/cluster-egress-requirements.md` | The requirement-ID form and the `## Verification` proven/not-proven split |
+| `infrastructure/.claude/plans/airgap-bootstrap/{PRD.md,SPEC.md}` | Out-of-scope **by name**, and `## How we will know we were wrong` |
+| `muster/.claude/plans/quality-review/01-gap-matrix.md` | The gap-matrix vocabulary `✓ covered · ◐ partial · ✗ gap · — N/A` |
 
 ### Prior grounding — readable by the requirements author only
 
-`~/repos/woven/forks/gitnexus/.claude/plans/hosted-service/` — `FINDINGS.md`, `RESEARCH.md`,
+`gitnexus/.claude/plans/hosted-service/` — `FINDINGS.md`, `RESEARCH.md`,
 `QUESTIONS.md` and `adrs/0001-gitnexus-licensing-path.md`.
 
 **Implementers MUST NOT read these** (`CON-1`): they quote internal identifiers, so reading them
