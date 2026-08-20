@@ -373,10 +373,35 @@ by checkpoint rather than by calendar, and treat each as producing a recorded de
 | Sync | Fires when | Input the architect needs | Output |
 |---|---|---|---|
 | **S1 — capability review** | The capability inventory and the five flows are drafted | `analysis/` capabilities table, `01-personas-and-flows.md` | Agreement that the inventory is complete, and a first read on natural groupings |
-| **S2 — seam pressure test** | Before any clustering is written down as preferred | The sketch in Appendix B, plus the coverage gaps and questions above | Which gaps land where; whether the decomposition stays command-shaped or turns domain-shaped |
-| **S3 — the impact decision** | Before impact requirements are finalised | `discussions/0001-what-impact-analysis-means.md` | The seven axes settled, and whether one traversal serves all projections |
-| **S4 — library / SDK / binary split** | Before the split is fixed | The AGPL linkability constraint, the deployment duality, read/write asymmetry | The cluster boundaries, and what may not appear in a library's public API |
-| **S5 — the async decision** | During backend screening, **never after** | Which required stores are async-only | An ADR. House rule: retrofitting async through a synchronous trait is a rewrite |
+| **S2 — vocabulary review** | Immediately after S1, and **before any SPEC prose is written** | The candidate term list extracted from the capability inventory, plus the vocabulary proposed in `discussions/0001` | **A ratified glossary that every later document must use.** Terms added after this are ratified at the next sync as a dated amendment |
+| **S3 — seam pressure test** | Before any clustering is written down as preferred | The sketch in Appendix B, plus the coverage gaps and questions above | Which gaps land where; whether the decomposition stays command-shaped or turns domain-shaped |
+| **S4 — the impact decision** | Before impact requirements are finalised | `discussions/0001-what-impact-analysis-means.md` | The seven axes settled, and whether one traversal serves all projections. Feeds terms back into the glossary |
+| **S5 — library / SDK / binary split** | Before the split is fixed | The AGPL linkability constraint, the deployment duality, read/write asymmetry | The cluster boundaries, and what may not appear in a library's public API. **Also unblocks the engine-library name** (`questions/0001`) |
+| **S6 — the async decision** | During backend screening, **never after** | Which required stores are async-only | An ADR. House rule: retrofitting async through a synchronous trait is a rewrite |
+
+### Why vocabulary gets its own sync, and gets it early
+
+Terminology drift is the cheapest problem to prevent and the most expensive to repair, because every
+document written after the drift inherits it. The requester's own SPEC guidance asks for consistency;
+this is the checkpoint that enforces it.
+
+It sits at **S2** rather than at the end for a specific reason: **write the glossary first, not last.**
+A glossary written last is a summary of whatever vocabulary happened to emerge, which is why glossaries
+are so often useless. A glossary written second is a constraint the SPEC has to satisfy.
+
+`discussions/0001` already contains the hardest case and shows what the sync is for: *"impact
+analysis"* looks like one capability and is a category containing at least four distinct terms
+(**reachability · blast radius · dependence · diff impact**). If S2 ratifies those, then the phrase
+"impact analysis" must not appear in any requirement — and that is exactly the kind of ruling only a
+vocabulary checkpoint produces.
+
+**Bring to S2:** every noun and verb the capability inventory uses for a thing the system stores,
+computes or returns; any term used in two senses; any term that is a category rather than a capability;
+and any place the reference implementation's vocabulary has leaked in and needs replacing.
+
+**The ratified glossary lives in the SPEC's references appendix**
+(`09-references-and-appendices.md`) and is written **before** the other SPEC files, not after. It
+carries dated amendments as later syncs add terms.
 
 **Rules for these syncs, so they stay useful:**
 
@@ -412,9 +437,13 @@ Commits, never on `main`.
   (**reachability / blast radius / dependence / diff impact**). **Adopt that vocabulary in the SPEC**;
   if you do, the phrase "impact analysis" should not appear in any requirement, because it is a
   category rather than a capability.
-- `questions/0001-product-and-crate-naming.md` — candidates are `git-graph` and `git-ctx`. The
-  subcommand name and the engine-library name are **separate decisions**; use `<PRODUCT>` as a marked
-  placeholder until both are settled, and do not half-rename a document.
+- `questions/0001-product-and-crate-naming.md` — **the CLI is decided: `git-ctx`.** Write it
+  literally; it is not a placeholder. **The engine-library name is deliberately deferred** until the
+  mapping of engine components, module members, domains, features and seams is drafted — you cannot
+  name the engine until you know what is inside it, and a premature name either gets outgrown or
+  degenerates into a `-core` suffix, of which there are none in this estate. Write **`<ENGINE>`**
+  wherever the engine library is meant and leave it visibly unresolved. **Do not half-rename a
+  document.** S5 unblocks the engine name.
 
 Create each directory on its first real document — **never scaffold.** Numbering is global per kind,
 so gaps are expected; note them in `README.md` rather than renumbering.

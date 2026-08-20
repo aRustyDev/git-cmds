@@ -54,12 +54,13 @@ The protocol is a **dirty-team / clean-team split**, specified in full in `PROMP
    per-backend feature flags with an in-memory default, `thiserror` in libraries and `anyhow` in
    binaries, and that the async decision must be resolved during screening because retrofitting it
    is a rewrite.
-4. **The product name is undecided.** Candidates are **`git-graph`** and **`git-ctx`**. House
-   precedent (`orrery`, `muster-sdk`, `muster`) is that the engine library carries a real product name
-   — there is no `-core` anywhere in the estate — so the **subcommand name and the engine-library name
-   are separate decisions**. `git-graph` also needs collision-clearing: *"git graph"* already means
-   the commit DAG to every git user, and this product's graph is a code-structure graph. See
-   `questions/0001-product-and-crate-naming.md`.
+4. **The CLI is `git-ctx`; the engine-library name is deferred.** `git-graph` was rejected because
+   *"git graph"* already means the commit DAG to every git user, while this product's graph is a
+   code-structure graph. The engine name waits behind a gate — **once the mapping of engine
+   components, module members, domains, features and seams is drafted** — because you cannot name the
+   engine until you know what is inside it, and a premature name either gets outgrown or degenerates
+   into a `-core` suffix, of which there are none in this estate. Write `git-ctx` literally and
+   `<ENGINE>` as a visible placeholder. See `questions/0001-product-and-crate-naming.md`.
 5. **A module-seam sketch exists and is explicitly not pressure-tested.** The requester supplied it
    (recorded verbatim as Appendix B of `PROMPT.md`) with the intent that logic be split into crates
    assembled into either a microservice or a CLI. It is **input to be tested, not the answer** — the
@@ -69,11 +70,27 @@ The protocol is a **dirty-team / clean-team split**, specified in full in `PROMP
 ## Architectural syncs
 
 The requester wants **recurring syncs with the Software Architect while the crate and module seams,
-and the SDK-versus-library-versus-binary clusters, are being defined.** `PROMPT.md` defines five
-checkpoint-triggered syncs — capability review, seam pressure test, the impact decision, the
-library/SDK/binary split, and the async decision — each with its required input and its expected
-output. The standing rule: **the requirements author brings requirements, the architect brings
-structure, and every sync ends with something written down.**
+and the SDK-versus-library-versus-binary clusters, are being defined.** `PROMPT.md` defines six
+checkpoint-triggered syncs, each with its required input and its expected output:
+
+| | Sync | Produces |
+|---|---|---|
+| S1 | capability review | agreement the inventory is complete |
+| S2 | **vocabulary review** | a ratified glossary every later document must use |
+| S3 | seam pressure test | where the coverage gaps land; command-shaped or domain-shaped |
+| S4 | the impact decision | the seven axes settled; one traversal or several |
+| S5 | library / SDK / binary split | cluster boundaries — and unblocks the engine name |
+| S6 | the async decision | an ADR, during backend screening and never after |
+
+Vocabulary sits second on purpose: **write the glossary first, not last.** A glossary written last
+summarises whatever vocabulary happened to emerge, which is why glossaries are usually useless; one
+written second is a constraint the SPEC has to satisfy. Terminology drift is also the cheapest
+problem to prevent and the most expensive to repair, since every document written after the drift
+inherits it.
+
+The standing rule: **the requirements author brings requirements, the architect brings structure, and
+every sync ends with something written down** — a closed question, a new question, an ADR, or an
+amended requirement.
 
 ## Map
 
@@ -82,7 +99,7 @@ structure, and every sync ends with something written down.**
 | `PROMPT.md` | Trigger prompt — write the requirements documentation. Appendices carry the capability list and the module-seam sketch. | ✅ |
 | `README.md` | This file: what the plan is, and the map. | ✅ |
 | `discussions/0001-what-impact-analysis-means.md` | **Open.** Seven axes on which "impact" varies; the non-negotiable three-state result contract; a proposed vocabulary. | ✅ |
-| `questions/0001-product-and-crate-naming.md` | **Open.** `git-graph` vs `git-ctx`, and why the subcommand and engine names are separate decisions. | ✅ |
+| `questions/0001-product-and-crate-naming.md` | **Partially decided.** CLI is `git-ctx`; engine-library name deferred behind the seam-mapping gate. | ✅ |
 | `PRD.md` or `prds/` | Problem, why now, functional requirements, out of scope, user flows, dependencies, success criteria. | ⬜ |
 | `specs/NN-*.md` | The SPEC, split across numbered files. | ⬜ |
 | `FEATURES.md` | Flat, ID'd feature list traceable to SPEC requirement IDs. | ⬜ |

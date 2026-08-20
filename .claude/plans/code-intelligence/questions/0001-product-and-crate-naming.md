@@ -1,89 +1,81 @@
 # Question 0001 — Product and crate naming
 
-- **Status:** open — candidates supplied, decision outstanding
+- **Status:** **partially decided 2026-08-19.** The CLI is **`git-ctx`**. The engine-library name is
+  **deferred** — see the gate below.
 - **Date:** 2026-08-19
-- **Blocks:** nothing hard. Use a marked placeholder and proceed; renaming crates before first
-  publish is cheap. It blocks only the point at which anything is published to a registry.
+- **Blocks:** nothing. The CLI name is settled, and the engine name blocks only publication to a
+  registry.
 
-## The question
+## Decision — the CLI is `git-ctx`
 
-What is this called — and is that one name or two?
+Settled by the requester, 2026-08-19. Use `git-ctx` throughout; it is not a placeholder.
 
-Candidates supplied by the requester: **`git-graph`** and **`git-ctx`**.
+The candidate it beat was `git-graph`, and the reason matters enough to record because it will come up
+again: **"git graph" already means the commit DAG** to every git user (`git log --graph`). This
+product's graph is a code-structure graph — a different object. That name would have invited users to
+expect history visualisation and to be surprised by symbol references, and it needed registry
+clearing besides.
 
-## The distinction that has to be drawn first
+`git-ctx` also matches what the tool actually provides a caller: the capability list's own term for
+the 360-degree symbol view is *context*. The residual weakness, recorded so nobody rediscovers it: a
+`-ctx` suffix conventionally signals *context switching* (`kubectx`-style), so some users may expect
+identity- or config-switching. Judged acceptable.
 
-**The subcommand name and the engine-library name need not be the same, and probably should not be.**
+## Deferred — the engine-library name, and why deferring is correct
+
+**Gate: decide the engine name once the mapping of engine components, module members, domains,
+features and seams is drafted.** Practically, that means after the seam pressure test and the
+library/SDK/binary split (syncs S3 and S5 in `PROMPT.md`).
+
+This is not scheduling convenience. **You cannot name the engine until you know what is inside it.**
+A library name is a claim about scope, and the scope is exactly what the seam work decides. Naming
+first tends to produce one of two failures:
+
+- the name is narrower than the crate becomes, and the crate accretes things its name disowns; or
+- the name is a vague abstraction chosen to be safe, which is how `-core` suffixes happen — and there
+  is **no `-core` anywhere in this estate**, deliberately.
+
+House precedent supports the deferral: the estate's engine library carries a real brand name
+(`orrery`) distinct from its binary (`muster`), which is only possible because the engine's boundary
+was settled first.
+
+## The distinction that made this two decisions rather than one
+
 This repository's premise is *"Collection of Crates (Lib/SDK/Bins) for building and running git
-subcommands"* — so there is a user-facing verb (`git <something>`) and, separately, whatever the
-reusable library is called.
+subcommands"* — so there is a user-facing verb and, separately, whatever the reusable library is
+called. They are different kinds of commitment:
 
-House precedent is explicit about this. The estate's Rust workspace pairs a binary named for the
-product with an engine library carrying its **own** brand name (`orrery`), plus an orchestration
-layer as `<product>-sdk` and a delivery split of `-types` / `-server` / `-ui`. **There is no `-core`
-anywhere in the estate** — the engine gets a real name rather than a suffix.
+| Slot | What it names | Kind of commitment | Status |
+|---|---|---|---|
+| Subcommand | What a developer types | UX. Renameable with a deprecation cycle | **`git-ctx`** ✅ |
+| Engine library | The reusable analysis contract | **API stability.** Published AGPL-3.0; renaming after publish is a breaking change | deferred ⬜ |
+| Orchestration / SDK | The layer above the engine | House convention `<engine>-sdk` or `<product>-sdk` | follows the engine ⬜ |
+| Delivery crates | Server, wire types, UI adapter | House convention `-server` / `-types` / `-ui` | follows the engine ⬜ |
 
-So the decision decomposes:
+Keeping them separate means the CLI can be renamed for UX reasons without breaking a published
+library API — which is the practical argument, and it is stronger here because the library is AGPL, so
+its name reaches anyone who links it.
 
-| Slot | What it names | Constraint |
-|---|---|---|
-| Subcommand | What a developer types | Must read naturally after `git `; discoverability matters |
-| Engine library | The reusable analysis contract | Published under this repo's AGPL-3.0; name is an API-stability commitment |
-| Orchestration / SDK | The layer above the engine | House convention is `<product>-sdk` |
-| Delivery crates | Server, wire types, UI adapter | House convention is `-server` / `-types` / `-ui` |
+## Placeholder discipline until the engine is named
 
-## Assessment of the two candidates
+- Write **`git-ctx`** wherever the CLI or the subcommand is meant. Not a placeholder.
+- Write **`<ENGINE>`** wherever the engine library is meant, and leave it visibly unresolved.
+- **Do not half-rename a document.** A spec that says `git-ctx` in some places and `<ENGINE>` in
+  others is correct; one that has silently adopted a guessed engine name in half its sections is not.
 
-### `git-graph`
+## Still to verify before publishing anything
 
-**For:** immediately descriptive; "graph" is the central noun of the product; reads well as
-`git graph`.
-
-**Against, and this is a real problem:** *"git graph"* already means something else to every git
-user — `git log --graph`, the **commit** DAG. This product's graph is a *code-structure* graph, a
-different object entirely. The name invites users to expect commit-history visualisation and to be
-confused when they get symbol references. There is also prior art on crates.io in the
-commit-graph-visualisation space using this name, so registry availability needs checking before it
-is committed to.
-
-**Verify before choosing:** `cargo search git-graph`, and whether `git-graph` is taken on crates.io.
-
-### `git-ctx`
-
-**For:** no collision with commit-graph semantics; short to type; "context" is genuinely what the
-tool provides to an agent — the 360-degree symbol view is literally called context in the capability
-list.
-
-**Against:** abbreviations are less discoverable, and `-ctx` follows a naming pattern
-(`kubectx`-style) that usually signals *context switching* — selecting between environments or
-identities. A user could reasonably expect `git ctx` to switch git identities or configs. Worth
-checking whether anything already claims that meaning.
-
-### A third direction worth considering
-
-Neither candidate names the *engine*. If the engine library needs a real name under house precedent,
-options include a distinct brand name for the library with a descriptive subcommand on top — e.g.
-subcommand `git ctx`, engine crate named for what it is rather than for the CLI. That keeps the CLI
-free to be renamed for UX reasons without breaking a published library API, which is the practical
-argument for separating them.
-
-## Recommendation
-
-Not for the requirements author to settle. But two things should be recorded as constraints
-regardless of the outcome:
-
-1. **Check registry availability and semantic collision before publishing anything.** `git-graph` in
-   particular needs clearing.
-2. **Decide the subcommand name and the engine-library name as separate decisions.** Conflating them
-   couples a UX choice to an API-stability commitment.
-
-## Until it is decided
-
-The requirements documents use `<PRODUCT>` as a marked placeholder. Do not silently adopt either
-candidate mid-document — a half-renamed spec is worse than a placeholder.
+- Registry availability for whatever the engine ends up called.
+- Whether `git-ctx` collides with an existing git subcommand or crate — cheap to check, not yet done.
 
 ## Notes
 
 The AGPL-3.0 licence interacts with this: whatever the engine crate is called, publishing it means
 publishing an AGPL library, and internal consumers must accept that to link it. See the
 implementation-constraints section of the SPEC.
+
+## Amendments
+
+- **2026-08-19** — CLI decided as `git-ctx`. Engine name deferred behind the seam-mapping gate.
+  Original question was "what is this called — and is that one name or two?"; the answer to the
+  second half is **two**.
