@@ -25,8 +25,15 @@
 | `CON-11` | Graph query dialects diverge outside read traversal | [`04-interfaces-and-external-systems.md`](04-interfaces-and-external-systems.md) `EXT-1` |
 | `CON-12` | Dependency licences are gated, not reviewed once | [`04-interfaces-and-external-systems.md`](04-interfaces-and-external-systems.md) `EXT-8` |
 
-`CON-2`, `CON-3`, `CON-11` and `CON-12` are declared where the reader meets them and are listed here
-so the registry is complete. They are not restated — a fact appearing in two documents will drift.
+`CON-2` and `CON-3` are full requirements declared in [`00-overview.md`](00-overview.md), where the
+reader meets them; they are listed here so the registry is complete, and are not restated — a fact
+appearing in two documents will drift.
+
+**`CON-11` and `CON-12` are aliases, not requirements.** They name design constraints that are already
+stated as `EXT-1` and `EXT-8` respectively, and they exist only so a reader looking for "the constraint
+about query dialects" or "the constraint about licences" finds it from this registry. They carry no
+independent requirement text, appear in no traceability count, and are covered through the `EXT-`
+identifiers they alias.
 
 ## Implementation constraints
 

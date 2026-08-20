@@ -139,13 +139,17 @@ Derived by counting the corpus, and asserted by the audit rather than by this ta
 | File | Prefix | Count |
 |---|---|---|
 | `00-overview.md` | `BR-`, `CON-` | 5 business, 2 constraints |
-| `02-functional-requirements.md` | `FR-` | 49 |
+| `02-functional-requirements.md` | `FR-` | 51 |
 | `03-non-functional-requirements.md` | `PERF-`, `SCALE-`, `COR-`, `OPS-`, `REV-`, `QA-0` | 7 + 5 + 7 + 7 + 5 + 1 |
 | `04-interfaces-and-external-systems.md` | `IF-`, `EXT-` | 14 + 13 |
 | `05-security-requirements.md` | `SEC-` | 17 |
 | `06-constraints.md` | `CON-` | 8 declared here, 12 in the registry |
 | `07-use-cases.md` | `US-`, `UC-` | 34 stories, 6 use cases |
 | `08-testing-and-documentation.md` | `QA-` | 21 |
+| **Total requirements** | — | **163** |
+
+Plus 34 user stories and 6 use cases, which are traceability artefacts rather than requirements and
+are counted separately.
 
 **Numbering gaps are expected and are not errors.** `FR-051`–`FR-067`, `FR-069`, `FR-070`, `FR-072`
 and `FR-074` are unused: the `CAP-0nn` ↔ `FR-0nn` alignment means cross-cutting capabilities
