@@ -167,6 +167,45 @@ which the ten unplaced capabilities suggest it might be.
 **The distinction worth preserving from D regardless of the outcome:** it is an excellent *surface*
 decomposition. Whatever the module shape, the CLI verbs it implies are a good CLI.
 
+### What the sketch actually is — established 2026-08-20
+
+**Clustering D is a transcription of the reference implementation's public command surface.** Five of the
+sketch's node descriptions appear **verbatim** in the reference's public documentation, checked against
+both:
+
+> *"Blast radius analysis with depth grouping and confidence"* · *"Shortest directed path between two
+> symbols"* · *"Pre-change impact report for an API route handler"* · *"Read-only structural checks
+> against the indexed graph"* · *"Validate API response shapes against consumers' property accesses"*
+
+Nothing improper happened — a public command surface is public, the requester supplied the sketch
+explicitly labelled *"not pressure tested or reviewed"*, and knowing what the prior art exposes is
+permitted and useful. But it changes what the sketch is **evidence of**, in three ways.
+
+**1. It explains the ten unplaced capabilities, and the explanation is better than "an oversight".**
+Ingestion, the storage abstraction, embedding provision, ranking, the service surfaces, identity and
+audit, job execution, repository acquisition, configuration, and observability are absent from the sketch
+because **a command surface structurally cannot contain them.** None of them is a verb a user types.
+Appendix B's own framing — that these are *"factual gaps in coverage"* — is right, and the reason is now
+known: they were never candidates for inclusion, so their absence carries no information about whether the
+requester wants them.
+
+**2. It converts one of this document's judgement calls into an evidenced one.** The concern raised above
+— that blast radius and diff impact appear as two nodes when `discussions/0001` requires one mechanism with
+projections — is no longer an inference about a hypothetical decomposition. **The sketch reproduces the
+organisation of a system in which those two capabilities were measured to be two incompatible mechanisms
+sharing one name**, chained only by prose instructions to a calling model. Adopting the sketch's shape
+would reproduce that split by construction. That is the strongest single argument against Clustering D and
+it did not exist before this check.
+
+**3. It creates a naming hazard that lands on the architect, not here.** The clean-room protocol's MUST NOT
+list explicitly covers **tool names**. Several of the sketch's node names correspond to the reference's
+tool names, so **naming crates after the sketch's nodes would reproduce them.** The sketch is safe to
+reason from and unsafe to name from. Filed as `GAP-020`.
+
+**What does not change:** the sketch remains legitimate input, and the observation above still holds — it
+is a good *surface* decomposition, and its verbs are a good CLI. It is simply a good CLI that already
+exists elsewhere, which is a weaker basis for a *module* decomposition than an independently-derived one.
+
 ## Where the evidence is genuinely ambiguous
 
 Stated plainly, because an analysis that resolves every ambiguity has invented evidence.
@@ -247,6 +286,12 @@ exposed externally. The two pull in opposite directions and the tension is `B6`'
 
 ## Amendments
 
+- **2026-08-20 (same day, second pass)** — Established that **Clustering D is a transcription of the
+  reference implementation's public command surface**, by matching five of its node descriptions verbatim
+  against the public documentation. This explains the ten unplaced capabilities (a command surface cannot
+  contain them), converts the blast-radius/diff-impact objection from judgement into evidence, and creates
+  a crate-naming hazard for the architect (`GAP-020`). Clustering D's standing as a *surface* decomposition
+  is unchanged.
 - **2026-08-20** — Created.
 
 ## Related

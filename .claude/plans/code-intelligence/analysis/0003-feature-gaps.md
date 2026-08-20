@@ -215,8 +215,53 @@ and here it should be the opposite of relief.
     document set with **deterministic** module grouping from derived clusters, and prose as a separately
     gated optional stage — deliberately *not* following the precedent's LLM grouping, with the cost of that
     choice recorded. **The general lesson for this matrix: `inaccessible` means the *design* is unreadable,
-    and a capability's public documentation is not its design. Two other rows may be misdispositioned for
-    the same reason** — 034 and 035 — and nobody has checked their public documentation either.
+    and a capability's public documentation is not its design.** Rows 034 and 035 were re-checked on the
+    same basis — see note 18.
+
+18. **Rows 034 and 035 re-checked against the public documentation, 2026-08-20. Both dispositions stand,
+    and the re-check produced a more useful finding than a reclassification.**
+
+    Both capabilities are confirmed to exist and are publicly documented — but **only as a name and a
+    single sentence**, and those sentences are already in this corpus. Response-shape conformance is
+    documented as *"validate API response shapes against consumers' property accesses"*; the route
+    pre-change report as *"pre-change impact report for an API route handler"*. The documentation does not
+    state either capability's inputs, output structure, or — for 034 — whether the shape it compares
+    against is declared or inferred. So there is nothing to learn beyond what `FR-034` and `FR-035` already
+    say, and **`inaccessible` is the correct disposition for both.**
+
+    **Why the wiki was different, which is the fact worth keeping.** The wiki's public documentation
+    describes a **contract**: an invocation, a required credential, a grouping mechanism, per-module pages,
+    an overview page, and cross-references. That is enough to specify against. For 034 and 035 the
+    documentation describes an **intent**. The distinction is not how much text there is — it is whether
+    inputs and outputs are named.
+
+    **The refined test for this matrix, replacing "have you read the public docs?":** *do the public docs
+    state the capability's inputs and outputs?* If yes, the precedent is readable at the contract level and
+    the row is `single-source`. If they state only what it is for, the row stays `inaccessible`, because an
+    intent is not a design.
+
+19. **⚠️ For this reference, public descriptions overstate measured behaviour — so they are evidence of
+    contract, never of mechanism.** *(2026-08-20.)* This is the calibration fact that keeps note 18 from
+    being read as "just check the docs".
+
+    The public description of the diff-oriented capability says it *traces which flows are impacted*,
+    which reads as a transitive walk. **The grounding measured it as a single hop against a precomputed
+    membership table** — a different question wearing the same words. Its risk verdict was likewise a count
+    over one projection, so a changed symbol belonging to no precomputed grouping reported nothing affected
+    and low risk however many direct callers it had.
+
+    Two consequences for how this matrix is used:
+
+    - **Where the public docs and the grounding disagree, the grounding wins.** It read the
+      implementation; the docs describe an aspiration.
+    - **A ✓ in the `Ref` column sourced from documentation is weaker than one sourced from the
+      grounding**, and this document does not currently distinguish them. That is a real limitation of
+      the matrix, recorded in the not-proven section.
+
+    It also corroborates a requirement rather than merely warning about one: `FR-035` is specified as a
+    **projection over `FR-024`** whose blast-radius section must be byte-identical to invoking `FR-024`
+    directly, and `FR-024` forbids collapsing a result into a risk score. Both clauses exist precisely to
+    prevent the defect the public description hides.
 
 ## Where the risk actually concentrates
 

@@ -67,6 +67,15 @@ recorded in this plan's handoff.
 **A consequence that binds a person, not a document:** whoever reads the grounding is tainted and
 **must not implement**. That is recorded in the handoff, and it applies to the author of this corpus.
 
+**A consequence that binds the architect's deliverable, added 2026-08-20.** Tool names are on the MUST NOT
+list, and the requester's module-seam sketch (Appendix B of `PROMPT.md`) is a **transcription of the
+reference's public command surface** — five of its node descriptions match the public documentation
+verbatim (`analysis/0002`). **So crate and module names MUST NOT be derived from the sketch's node names.**
+The sketch is safe to reason from and unsafe to name from. This is the one laundering failure that would be
+externally visible, because it would ship in a published artefact's crate names, and the audit in
+`scripts/audit-corpus.py` will not catch it — that script audits this corpus, not the future workspace.
+Filed as `GAP-020`.
+
 ### CON-4 — Internal consumers MUST accept AGPL-3.0 in order to link the libraries. *(VERIFIED)*
 
 **MUST.** This repository is AGPL-3.0 (`LICENSE`, 661 lines). Anything that **links** `<ENGINE>` — in

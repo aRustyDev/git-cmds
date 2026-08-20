@@ -376,14 +376,31 @@ it out substantially, and A4 exists specifically to generate `hypothetical` entr
   magnitude today, without the platform existing.
 - **relates:** `SCALE-1` carries a dated amendment. Resolution is two corpora, not a changed target.
 
+### GAP-020 — Crate names taken from the module-seam sketch would reproduce reference tool names
+- **kind:** knowledge · **confidence:** `known` · **disposition:** `open`
+- **source:** re-check of the sketch against the reference's public documentation, 2026-08-20
+- **missing:** an instruction to the architect not to name crates after the sketch's nodes. The sketch is
+  a **transcription of the reference's public command surface** — five of its node descriptions match the
+  public documentation verbatim (`analysis/0002`) — and the clean-room protocol's MUST NOT list explicitly
+  covers **tool names**. So the sketch is safe to reason from and **unsafe to name from**.
+- **consequence:** a crate layout named after the sketch would carry reference tool names into a published
+  AGPL artefact, which is the one class of laundering failure that is externally visible. `CON-8` keeps this
+  corpus clean of crate names; nothing currently protects the architect's deliverable, which is where the
+  names will actually be chosen.
+- **verification:** verified — the description match was checked against both documents.
+- **relates:** owned by **B1**/**B6** (whoever fixes the layout). `CON-1` carries a clause; `CON-9`'s
+  placeholder discipline is the adjacent rule. **The laundering denylist in `scripts/audit-corpus.py` will
+  not catch this**, because it audits this corpus and not the future workspace.
+
 ## Triage and verification pass — 2026-08-20
 
 The A-track requirements work is the first substantial pass over the register, so both the **triage**
 rhythm (classify new entries) and the **verification pass** rhythm (every `presumed` and `hypothetical`
 entry gets verified or stamped) are recorded here rather than deferred.
 
-**Eleven new entries filed** (`GAP-009`–`GAP-019`), all triaged on filing. Register size: 8 → 19.
-`GAP-018` and `GAP-019` arrived in a second pass, from the requester's answer on the target corpus.
+**Twelve new entries filed** (`GAP-009`–`GAP-020`), all triaged on filing. Register size: 8 → 20.
+`GAP-018` and `GAP-019` arrived in a second pass from the requester's answer on the target corpus;
+`GAP-020` from re-checking the module-seam sketch against the reference's public documentation.
 
 ### Verification pass over the seeded eight
 
@@ -405,13 +422,13 @@ stamp: `GAP-003`, `GAP-006`, `GAP-008`, and (as of filing) `GAP-012`.
 
 | Confidence | Count | Entries |
 |---|---:|---|
-| `known` | 10 | 002, 004, 005, 009, 010, 011, 014, 015, 016, 018 |
+| `known` | 11 | 002, 004, 005, 009, 010, 011, 014, 015, 016, 018, 020 |
 | `discovered` | 2 | 001, 013 |
 | `inferred` | 4 | 003, 007, 017, 019 |
 | `presumed` | 2 | 008, 012 |
 | `hypothetical` | 1 | 006 |
 
-All 19 are `open`. **Nothing is `scheduled`**, which is correct — there is no backlog (`questions/0002`),
+All 20 are `open`. **Nothing is `scheduled`**, which is correct — there is no backlog (`questions/0002`),
 and several of the highest-value entries are unverified and therefore ineligible under the binding rule.
 
 **Two entries to act on first, both cheap and both capable of deleting work:**
@@ -447,6 +464,13 @@ have been filed `presumed`, not `known`.
 
 - **2026-08-20** — Created. Split the requester's six-term taxonomy into orthogonal `confidence` and
   `disposition` axes, added `kind`, and seeded eight entries covering every confidence level.
+- **2026-08-20 (same day, third pass)** — **`GAP-020` filed.** Re-checking rows 034 and 035 against the
+  reference's public documentation left both dispositions unchanged — the docs state an *intent*, not a
+  contract — but established that the requester's module-seam sketch is a **transcription of the
+  reference's public command surface**, which makes it unsafe to derive crate names from. Also recorded, in
+  `analysis/0003` note 19: **this reference's public descriptions overstate its measured behaviour**, so
+  they are evidence of contract and never of mechanism, and where they conflict with the grounding the
+  grounding wins.
 - **2026-08-20 (same day, second pass)** — **`GAP-018` and `GAP-019` filed** from the requester's answer
   on the target corpus: edges are conditional on a build configuration and no requirement can express
   that, and the scale target is uncalibrated against the primary corpus. **`GAP-016` corrected** — it had

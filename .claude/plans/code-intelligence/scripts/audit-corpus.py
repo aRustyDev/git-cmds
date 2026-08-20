@@ -173,6 +173,11 @@ DENY = [
     "CodeEmbedding", "CodeRelation", "SCHEMA_FINGERPRINT", "PARSE_CACHE_VERSION",
     "SupportedLanguages", "LanguageProvider", "cluster-enricher", "hybrid-search.ts",
     "detect_changes", "group_sync", "list_repos", "route_map", "GITNEXUS_",
+    # Reference tool names confirmed from its public docs 2026-08-20. Only the DISTINCTIVE ones are
+    # listed: the reference's surface also uses bare words (impact, trace, check, query, context, wiki,
+    # explain, rename, status, analyze, search) which are ordinary English and would false-positive on
+    # every page. Those are covered by CON-1 as a rule, not by this grep. See GAP-020.
+    "shape_check", "api_impact", "detect_impact",
     "gitnexus", "GitNexus", "Akon Labs", "abhigyanpatwari", "PolyForm-Noncommercial",
     "docker-server.mjs", "sessionLock", "withConnLock", "STEP_IN_PROCESS",
     "Leiden", "leiden", "snowflake-arctic", "MAX_POOL_SIZE", "EMBEDDING_DIMS",

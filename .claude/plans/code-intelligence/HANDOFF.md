@@ -120,6 +120,38 @@ SDKs and consuming binaries under `crates/**`, potentially several binaries over
   The target should not drop, but two corpora are needed — the real one for correctness, a generated one
   for the budgets.
 
+**3. The re-check of rows 034 and 035 changed neither, and found two things that matter more.**
+
+- **The refined test for `inaccessible`.** The wiki's docs reclassified it because they describe a
+  **contract** — invocation, credential, grouping, page structure, cross-references. Rows 034 and 035
+  describe an **intent**: a name and a sentence, both already in this corpus. So the test is not *"have you
+  read the public docs?"* but *"do the docs state inputs and outputs?"* If not, an intent is not a design
+  and `inaccessible` stands.
+- **This reference's public descriptions overstate its measured behaviour.** Its diff-oriented capability is
+  publicly described as tracing which flows are impacted, which reads as a transitive walk; the grounding
+  **measured a single hop** against a precomputed membership table, with a risk verdict that was a count
+  over one projection. **So public docs are evidence of contract and never of mechanism, and where they
+  conflict with the grounding, the grounding wins** — it read the implementation. `analysis/0003` note 19.
+  A `Ref` ✓ sourced from documentation is therefore weaker than one sourced from the grounding, and the
+  matrix does not currently distinguish them.
+
+**4. The module-seam sketch is a transcription of the reference's public command surface** — five node
+descriptions match verbatim. Nothing improper: a public surface is public, and the sketch was offered
+explicitly as untested. But it changes what the sketch is evidence of, and one consequence lands on the
+architect:
+
+- **It explains the ten unplaced capabilities better than "an oversight" does.** Ingestion, storage,
+  ranking, identity, jobs and observability are absent because **a command surface structurally cannot
+  contain them** — none is a verb a user types. Their absence carries no information about intent.
+- **It converts a judgement call into evidence.** The objection that blast radius and diff impact appear as
+  two nodes is no longer an inference: the sketch reproduces the organisation of a system where those two
+  were *measured* to be incompatible mechanisms sharing one name. Adopting its shape reproduces the split
+  by construction.
+- **⚠️ It creates a naming hazard on your deliverable, not mine.** Tool names are on the clean-room MUST NOT
+  list. **Do not derive crate or module names from the sketch's nodes** — reason from it, don't name from
+  it. `CON-1` now carries the clause, `GAP-020` holds it, and note that `scripts/audit-corpus.py` **cannot**
+  catch this: it audits this corpus, not the future workspace.
+
 ## Artifacts I added beyond the prompt's list, and why
 
 The prompt called its deliverable list a floor. Five additions:
@@ -180,9 +212,10 @@ not on the list, so a clean run is evidence and not proof.
    question, it is `known`, and every downstream traversal requirement inherits it.
 4. **Count the symbols in the target workspace** (`GAP-019`). Crude is fine; it needs no platform and it
    tells you whether `SCALE-1` is calibrated against anything real.
-5. **Re-check the two `inaccessible` rows I did not re-check** — response-shape conformance and the route
-   pre-change report — against the prior art's public documentation. That is a permitted source and it
-   already overturned one disposition.
+5. ~~Re-check the two `inaccessible` rows I did not re-check.~~ **Done 2026-08-20.** Both dispositions
+   stand: the public docs state an *intent* for those two, not a contract, so there is nothing to specify
+   against beyond what `FR-034` and `FR-035` already say. The re-check produced two better findings than a
+   reclassification would have — see *Corrections* above.
 6. **Hold A1 and A3.** The inputs are ready and the corpus is unreviewed.
 7. **Hold A2 properly.** The glossary is ratified for this corpus and not jointly. It is the document
    every later one depends on, so a unilateral ratification is the weakest link in the A-track.
@@ -201,6 +234,8 @@ not on the list, so a clean run is evidence and not proof.
   natural design — one shared handle behind one lock — is precisely the measured prior-art failure, and
   read concurrency cannot be added later.
 - **The async decision must not be deferred past backend screening.**
+- **Crate and module names must not be derived from the module-seam sketch** — it transcribes the
+  reference's public tool names, and tool names are on the clean-room MUST NOT list (`GAP-020`).
 - **I must not write the implementation.**
 
 ## Related
