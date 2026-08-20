@@ -269,6 +269,127 @@ multi-file rename. **Ask whether each is wanted rather than assuming either way*
 grounding found the reference's own diff-impact to be a single-hop lookup rather than a transitive
 walk, so "impact analysis" needs defining precisely before it can be specified.
 
+## Appendix B — the requester's module-seam sketch
+
+The requester supplied the crate sketch below, **explicitly labelled "not pressure tested or
+reviewed"**, alongside the intent: *break the logic into separate crates that can be dynamically
+included and assembled into either a microservice, a CLI, or a similar form.*
+
+**Treat this as input to be tested, not as a constraint to satisfy, and not as the answer.** The
+architect owns the final shape. Your job is to make sure the requirements cover everything the sketch
+implies *and* everything it does not yet place.
+
+```text
+crates/
+├── graph/
+│   ├── status/     : Show index status for current repo
+│   ├── analyze/    : Index a repository (or update a stale index)
+│   │   └── taints  : source→sink data-flow findings (--pdg index)
+│   ├── wiki/       : Generate repository wiki from knowledge graph
+│   ├── explain/    : Explain persisted taint findings (source→sink flows, --pdg indexes)
+│   ├── cypher/     : Raw Cypher graph queries
+│   ├── rename/     : Multi-file coordinated rename with graph + text search
+│   ├── trace/      : Shortest directed path between two symbols (call + class-member edges)
+│   ├── impact/     : Blast radius analysis with depth grouping and confidence
+│   │   └── api     : Pre-change impact report for an API route handler
+│   ├── context/    : 360-degree symbol view — categorized refs, process participation
+│   ├── query/      : Process-grouped hybrid search (BM25 + semantic + RRF)
+│   │   └── pdg     : Query control/data dependence at statement level (--pdg indexes)
+│   ├── detect/
+│   │   └── changes : Git-diff impact — maps changed lines to affected processes
+│   ├── schema/     :
+│   ├── check/      : Read-only structural checks against the indexed graph
+│   │   └── shape   : Validate API response shapes against consumers' property accesses
+│   ├── group/
+│   │   ├── list    : List configured repository groups
+│   │   └── sync    : Rebuild a group's Contract Registry and cross-repo links
+│   └── repo/
+│       └── list    : Discover all indexed repositories (paginated — limit/offset)
+├── sql/            : # (out of scope) an ORM interface for Dolt
+├── dolt/           : # (out of scope) a different product copying from what beads and dolt server
+│                     do, to support direct writes to the git DB
+└── gud/            : # (out of scope) a different product 'git-U-data' or 'git-Union-data'
+                      (like DVC or LakeFS)
+```
+
+### What the sketch does not yet place — requirements-coverage gaps
+
+These are **factual gaps in coverage**, not architectural opinions. Each names a capability the
+requirement set demands that has no home in the sketch. Make sure each is specified, and flag it for
+the first architectural sync so the architect can decide where it belongs:
+
+1. **Ingestion and parsing** — turning source into the graph. Language coverage, per-language
+   extraction, and the extensibility contract for adding a language.
+2. **The storage abstraction** — the requirement list demands graph, vector, SQL, search, text-search
+   and key-value stores each swap between embedded and networked *without touching business logic*.
+   Nothing in the sketch owns that seam, and it is the single most consequential one.
+3. **Embedding generation and provider selection**, including the runtime-toggleable AI provider
+   configuration and its administrative restriction.
+4. **Ranking and fusion** — keyword, semantic and rank fusion appear under `query/`, but `context/`
+   and `impact/` also rank. The requirement that this have **exactly one implementation** needs a
+   home.
+5. **The service surfaces** — the MCP endpoint and the HTTP/API layer, which are how agents and the
+   web UI actually arrive.
+6. **Authentication, per-principal identity, authorisation, and the audit trail.**
+7. **Indexing as durable, queued, cancellable work** — the requirement that indexing not be
+   single-slot implies a job model that no sketched crate owns.
+8. **Repository acquisition** — fetching and updating repositories, and credential handling for
+   private remotes.
+9. **Configuration and deployment-shape assembly** — the sketch's own stated goal (assemble into
+   microservice or CLI) needs a composition layer.
+10. **Observability** — the concurrency, latency and staleness requirements are unverifiable without
+    one.
+
+### Questions the sketch raises — for the first architectural sync
+
+Do not resolve these yourself. Record them as questions:
+
+- **The sketch is organised by command, not by domain.** Every node maps to a CLI verb. That is a
+  legitimate *surface* decomposition; whether it is also the right *crate* decomposition is the
+  question, because shared machinery (graph access, parsing, ranking, storage) has no home in a
+  command-shaped tree and tends to end up either duplicated or in one god-crate.
+- **Read and write are not separated.** `analyze`, `rename` and `group/sync` mutate; everything else
+  reads. With a target profile of ~10 000 mostly read-only agents, read/write asymmetry is arguably
+  the primary seam, and the sketch does not draw it.
+- **`impact/` and `detect/changes` are two homes for what may be one traversal.** See
+  `discussions/0001-what-impact-analysis-means.md` — this is exactly the split that produced two
+  incompatible mechanisms in the reference implementation.
+- **PDG work spans `analyze/taints` (produce), `explain/` (report) and `query/pdg` (interrogate).**
+  Reasonable as a write/read split, but the shared dependence model needs an owner.
+- **`schema/` is an unlabelled slot.** What is it for?
+- **`sql/` is marked out of scope as "an ORM interface for Dolt"** — but the requirement list needs a
+  SQL store that swaps between embedded and server. Are those the same crate or different concerns?
+  If different, the requirement's SQL store has no home in the sketch.
+- **`rename/` is a write operation with a poor precedent.** The grounding found the reference's
+  equivalent to be text-level with no index writeback. Confirm it is wanted, and specify it as
+  AST-accurate with graph update — or drop it.
+
+## Architectural syncs — a standing working agreement
+
+The requester wants **recurring architectural syncs with the Software Architect while the crate and
+module seams, and the SDK-versus-library-versus-binary clusters, are being defined.** Structure them
+by checkpoint rather than by calendar, and treat each as producing a recorded decision.
+
+| Sync | Fires when | Input the architect needs | Output |
+|---|---|---|---|
+| **S1 — capability review** | The capability inventory and the five flows are drafted | `analysis/` capabilities table, `01-personas-and-flows.md` | Agreement that the inventory is complete, and a first read on natural groupings |
+| **S2 — seam pressure test** | Before any clustering is written down as preferred | The sketch in Appendix B, plus the coverage gaps and questions above | Which gaps land where; whether the decomposition stays command-shaped or turns domain-shaped |
+| **S3 — the impact decision** | Before impact requirements are finalised | `discussions/0001-what-impact-analysis-means.md` | The seven axes settled, and whether one traversal serves all projections |
+| **S4 — library / SDK / binary split** | Before the split is fixed | The AGPL linkability constraint, the deployment duality, read/write asymmetry | The cluster boundaries, and what may not appear in a library's public API |
+| **S5 — the async decision** | During backend screening, **never after** | Which required stores are async-only | An ADR. House rule: retrofitting async through a synchronous trait is a rewrite |
+
+**Rules for these syncs, so they stay useful:**
+
+- **You bring requirements; the architect brings structure.** When the two conflict, the requirement
+  is the thing that must be true and the structure is the thing that must change — unless the
+  requirement turns out to be unfounded, in which case say so and amend it.
+- **Never settle a seam in a sync on your own authority.** Your role is to test proposals against
+  requirements and to say what a proposal would make impossible.
+- **Every sync ends with something written down** — a closed question, a new question, an ADR, or an
+  amended requirement. A sync that produces only shared understanding has produced nothing.
+- **Bring the disliked consequence.** House ADR convention; it applies here too. If a proposal has a
+  cost, name it in the sync rather than in review.
+
 ## Deliverables
 
 Under `.claude/plans/code-intelligence/`, on a worktree feature branch (`docs/<slug>`), Conventional
@@ -282,6 +403,18 @@ Commits, never on `main`.
 | `FEATURES.md` | Flat, ID'd feature list traceable to SPEC IDs |
 | `analysis/` | Capabilities · feature clusters · feature gaps |
 | `questions/NNNN-*.md` + `QUESTIONS.md` | One file per architectural fork, plus an index |
+| `discussions/NNNN-*.md` | Multi-axis design questions that are not yet single decisions |
+
+**Already seeded — read both before starting, and extend rather than duplicating:**
+
+- `discussions/0001-what-impact-analysis-means.md` — seven axes on which "impact" varies, the
+  three-state result contract that is non-negotiable, and a proposed vocabulary
+  (**reachability / blast radius / dependence / diff impact**). **Adopt that vocabulary in the SPEC**;
+  if you do, the phrase "impact analysis" should not appear in any requirement, because it is a
+  category rather than a capability.
+- `questions/0001-product-and-crate-naming.md` — candidates are `git-graph` and `git-ctx`. The
+  subcommand name and the engine-library name are **separate decisions**; use `<PRODUCT>` as a marked
+  placeholder until both are settled, and do not half-rename a document.
 
 Create each directory on its first real document — **never scaffold.** Numbering is global per kind,
 so gaps are expected; note them in `README.md` rather than renumbering.

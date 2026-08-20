@@ -54,20 +54,40 @@ The protocol is a **dirty-team / clean-team split**, specified in full in `PROMP
    per-backend feature flags with an in-memory default, `thiserror` in libraries and `anyhow` in
    binaries, and that the async decision must be resolved during screening because retrofitting it
    is a rewrite.
-4. **The product name is undecided.** House precedent (`orrery`, `muster-sdk`, `muster`) is that the
-   engine library carries a real product name — there is no `-core` anywhere in the estate.
+4. **The product name is undecided.** Candidates are **`git-graph`** and **`git-ctx`**. House
+   precedent (`orrery`, `muster-sdk`, `muster`) is that the engine library carries a real product name
+   — there is no `-core` anywhere in the estate — so the **subcommand name and the engine-library name
+   are separate decisions**. `git-graph` also needs collision-clearing: *"git graph"* already means
+   the commit DAG to every git user, and this product's graph is a code-structure graph. See
+   `questions/0001-product-and-crate-naming.md`.
+5. **A module-seam sketch exists and is explicitly not pressure-tested.** The requester supplied it
+   (recorded verbatim as Appendix B of `PROMPT.md`) with the intent that logic be split into crates
+   assembled into either a microservice or a CLI. It is **input to be tested, not the answer** — the
+   architect owns the final shape. Appendix B also lists ten requirements-coverage gaps the sketch
+   does not yet place, and the questions it raises.
+
+## Architectural syncs
+
+The requester wants **recurring syncs with the Software Architect while the crate and module seams,
+and the SDK-versus-library-versus-binary clusters, are being defined.** `PROMPT.md` defines five
+checkpoint-triggered syncs — capability review, seam pressure test, the impact decision, the
+library/SDK/binary split, and the async decision — each with its required input and its expected
+output. The standing rule: **the requirements author brings requirements, the architect brings
+structure, and every sync ends with something written down.**
 
 ## Map
 
 | Path | What it is | Exists |
 |---|---|---|
-| `PROMPT.md` | Trigger prompt — write the requirements documentation. | ✅ |
+| `PROMPT.md` | Trigger prompt — write the requirements documentation. Appendices carry the capability list and the module-seam sketch. | ✅ |
 | `README.md` | This file: what the plan is, and the map. | ✅ |
+| `discussions/0001-what-impact-analysis-means.md` | **Open.** Seven axes on which "impact" varies; the non-negotiable three-state result contract; a proposed vocabulary. | ✅ |
+| `questions/0001-product-and-crate-naming.md` | **Open.** `git-graph` vs `git-ctx`, and why the subcommand and engine names are separate decisions. | ✅ |
 | `PRD.md` or `prds/` | Problem, why now, functional requirements, out of scope, user flows, dependencies, success criteria. | ⬜ |
 | `specs/NN-*.md` | The SPEC, split across numbered files. | ⬜ |
 | `FEATURES.md` | Flat, ID'd feature list traceable to SPEC requirement IDs. | ⬜ |
 | `analysis/` | Capabilities · feature clusters · feature gaps. | ⬜ |
-| `questions/NNNN-*.md` + `QUESTIONS.md` | One file per architectural fork, plus an index. | ⬜ |
+| `QUESTIONS.md` | Index over `questions/`. | ⬜ |
 
 Directories are created on their first real document — a stub tree reads as coverage and is a lie.
 Numbering is global per kind, so gaps are expected; note them here rather than renumbering.
