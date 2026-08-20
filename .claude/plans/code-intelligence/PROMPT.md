@@ -1,11 +1,11 @@
 # Write the requirements for a Rust code-intelligence platform
 
 > **Trigger prompt.** Paste everything below the horizontal rule into a fresh Claude Code session
-> started in `~/repos/woven/forks/git-cmds`. **Requirements authorship only — it stops short of
+> started in `git-cmds`. **Requirements authorship only — it stops short of
 > writing Rust, choosing crate names, or designing modules.**
 >
 > Drafted 2026-08-19, from the grounding recorded in
-> `~/repos/woven/forks/gitnexus/.claude/plans/hosted-service/`.
+> `gitnexus/.claude/plans/hosted-service/`.
 
 ---
 
@@ -39,7 +39,7 @@ research. The architect and implementers may not, and will work only from what y
 
 | You MAY | You MUST NOT |
 |---|---|
-| Read `~/repos/woven/forks/gitnexus/.claude/plans/hosted-service/{FINDINGS,RESEARCH,QUESTIONS}.md` and `adrs/0001-*.md` (on `main`) | **Read GitNexus source code.** Not `gitnexus/src/**`, not its tests, not its schema files |
+| Read `gitnexus/.claude/plans/hosted-service/{FINDINGS,RESEARCH,QUESTIONS}.md` and `adrs/0001-*.md` (on `main`) | **Read GitNexus source code.** Not `gitnexus/src/**`, not its tests, not its schema files |
 | Read GitNexus's public-facing docs for capability vocabulary | Copy code, schema DDL, or type definitions |
 | State required behaviour in our own words | Reproduce internal names — module, file, function, phase, table, or tool names |
 | Give numeric budgets we chose and can justify | Carry over magic constants from the reference (fusion K values, pool sizes, node caps, embedding widths, timeouts) |
@@ -67,12 +67,12 @@ Nothing is in your context that you do not read. Specifically:
 - **Project memory is empty.** No `MEMORY.md`, no memory files — for this repo or any other.
 - `~/.claude/rules/**` auto-loads — in particular `plans-and-docs.md`, which governs where your
   output goes, and `tool-call-plumbing.md`, whose constraints are measured, not theoretical.
-- **muster's rules do NOT auto-load** (different repo). Read them by absolute path — they are the
+- **muster's rules do NOT auto-load** (different repo). Open them explicitly — they are the
   house reference and they answer several questions you would otherwise ask:
-  - `~/repos/woven/forks/muster/.claude/rules/00-non-negotiables.md`
-  - `~/repos/woven/forks/muster/.claude/rules/04-rust-conventions.md`
-  - `~/repos/woven/forks/muster/.claude/rules/02-decision-records.md`
-  - `~/repos/woven/forks/muster/.claude/rules/10-docs-structure.md`
+  - `muster/.claude/rules/00-non-negotiables.md`
+  - `muster/.claude/rules/04-rust-conventions.md`
+  - `muster/.claude/rules/02-decision-records.md`
+  - `muster/.claude/rules/10-docs-structure.md`
 - **This repository is AGPL-3.0** (`LICENSE`, 661 lines) and otherwise nearly empty. Its `README.md`
   reads *"Collection of Crates (Lib/SDK/Bins) for building and running git subcommands"*.
 
@@ -89,12 +89,12 @@ Then read the **house format exemplars** and match their shape, vocabulary and h
 
 | Read | For |
 |---|---|
-| `~/repos/woven/forks/muster/.claude/plans/orrery/specs/00-overview.md` … `05-testing-criteria.md` | The multi-file SPEC split, and the non-functional vocabulary: Performance budgets / Scale targets / Correctness / Security and privacy / Operability / Reversibility |
-| `~/repos/woven/forks/muster/.claude/plans/orrery/prds/00-orrery-engine.md` | The house PRD outline |
-| `~/repos/woven/infrastructure/infrastructure/docs/src/dev/specs/cluster-egress-requirements.md` | Requirement-ID style — `### E-1 — <Component> MUST <do X>. *(VERIFIED)*` — and `## Verification` split proven / not-proven |
-| `~/repos/woven/infrastructure/infrastructure/.claude/plans/airgap-bootstrap/{PRD.md,SPEC.md}` | The richest PRD in the estate, the **contract seam register** pattern, and `## How we will know we were wrong` |
-| `~/repos/woven/forks/muster/.claude/plans/quality-review/01-gap-matrix.md` | The gap-matrix pattern (`✓ covered · ◐ partial · ✗ gap · — N/A`) for your analysis docs |
-| `~/repos/woven/forks/muster/.claude/plans/orrery/questions/` | One numbered file per architectural fork |
+| `muster/.claude/plans/orrery/specs/00-overview.md` … `05-testing-criteria.md` | The multi-file SPEC split, and the non-functional vocabulary: Performance budgets / Scale targets / Correctness / Security and privacy / Operability / Reversibility |
+| `muster/.claude/plans/orrery/prds/00-orrery-engine.md` | The house PRD outline |
+| `infrastructure/docs/src/dev/specs/cluster-egress-requirements.md` | Requirement-ID style — `### E-1 — <Component> MUST <do X>. *(VERIFIED)*` — and `## Verification` split proven / not-proven |
+| `infrastructure/.claude/plans/airgap-bootstrap/{PRD.md,SPEC.md}` | The richest PRD in the estate, the **contract seam register** pattern, and `## How we will know we were wrong` |
+| `muster/.claude/plans/quality-review/01-gap-matrix.md` | The gap-matrix pattern (`✓ covered · ◐ partial · ✗ gap · — N/A`) for your analysis docs |
+| `muster/.claude/plans/orrery/questions/` | One numbered file per architectural fork |
 
 ⚠️ **Do not** imitate GitNexus's own root docs (emoji priority markers, Title Case headings) — that
 is upstream style and is inconsistent with house style. House style is sentence-case headings, no

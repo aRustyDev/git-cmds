@@ -66,7 +66,56 @@ its name reaches anyone who links it.
 ## Still to verify before publishing anything
 
 - Registry availability for whatever the engine ends up called.
-- Whether `git-ctx` collides with an existing git subcommand or crate — cheap to check, not yet done.
+- ~~Whether `git-ctx` collides with an existing git subcommand or crate — cheap to check, not yet
+  done.~~ **Checked 2026-08-20. It collides. See the amendment below.**
+
+## ⚠️ `git-ctx` is taken, and by something with the semantics this document worried about
+
+**Checked 2026-08-20 against the crates.io API.** A crate named exactly `git-ctx` exists and is live:
+
+| Field | Value |
+|---|---|
+| Name | `git-ctx` — exact match |
+| Description | *"A git custom command to list and switch most recent branches"* |
+| Version | 0.1.1, MIT |
+| First published | 2022-02-28 · last updated 2022-03-08 |
+| Downloads | 2,838 total, 13 recent |
+| Status | **published, not yanked** |
+| Repository / homepage | none declared |
+
+**Two distinct problems, and the second is worse than the first.**
+
+1. **Registry collision.** The name cannot be published to crates.io. A binary crate publishing as
+   `git-ctx` is refused. This is a blocker for publication only, not for local work — but note that
+   `questions/0001`'s own table marks the CLI as UX-renameable *"with a deprecation cycle"*, and that
+   assumption is cheaper before anything ships than after.
+2. **Semantic collision, and it is exactly the residual weakness this document already recorded.** The
+   text above says: *"a `-ctx` suffix conventionally signals context switching (`kubectx`-style), so
+   some users may expect identity- or config-switching. Judged acceptable."* The existing crate **is a
+   branch switcher**. So the risk is no longer hypothetical: a user who installs both gets two tools
+   competing for `git ctx`, and the incumbent does the context-switching thing the suffix implies.
+
+**What this does and does not change:**
+
+- **It does not change the decision.** `git-ctx` is written literally throughout the corpus, as
+  instructed. Renaming on the requirements author's authority would be exactly the half-rename this
+  document forbids.
+- **It does mean the decision was taken without this evidence.** The requester judged the `-ctx`
+  ambiguity acceptable against a hypothetical; it is now a live conflict with a published tool.
+- **Low incumbency is a real mitigation.** 13 recent downloads, no repository URL, untouched since
+  March 2022. This is a dormant crate, not a popular one. Options include a different crate name for the
+  same subcommand (`cargo` allows the binary name to differ from the crate name), a different
+  subcommand verb, or contacting the owner.
+
+**Filed as `GAP-014`.** Owner: the requester. It is not blocking — nothing is published and nothing is
+built — and it should be settled before the first release rather than at it.
+
+## Notes on method
+
+The check was two API calls: a search for the name, then the crate detail for version, licence,
+download counts and dates. Recorded because the previous state of this file was *"cheap to check, not
+yet done"* — and it was indeed cheap, which is the argument for doing the remaining verification item
+(engine-name availability) at the moment the engine is named rather than later.
 
 ## Notes
 
@@ -79,3 +128,9 @@ implementation-constraints section of the SPEC.
 - **2026-08-19** — CLI decided as `git-ctx`. Engine name deferred behind the seam-mapping gate.
   Original question was "what is this called — and is that one name or two?"; the answer to the
   second half is **two**.
+- **2026-08-20** — **`git-ctx` verified as taken on crates.io**, by a 2022 MIT crate that is a git
+  subcommand for listing and switching recent branches. The registry name is unavailable and the
+  `-ctx`-means-context-switching risk this document recorded as acceptable is now a live conflict with
+  a published tool rather than a hypothesis. The decision stands as written — renaming is the
+  requester's — and the finding is filed as `GAP-014`. The remaining verification item (engine-name
+  availability) is unchanged and still owed, at the moment the engine is named.

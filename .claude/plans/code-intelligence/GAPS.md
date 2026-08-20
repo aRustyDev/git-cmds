@@ -220,6 +220,303 @@ it out substantially, and A4 exists specifically to generate `hypothetical` entr
   Check before treating this as a gap.
 - **relates:** owned by **B4**; interacts with **A5** axis 3 (edge admissibility).
 
+### GAP-009 — There is no rule for deciding the compute set before the expensive work
+- **kind:** capability · **confidence:** `known` · **disposition:** `open`
+- **source:** requirements authoring, 2026-08-20, while writing `FR-011`
+- **missing:** `FR-011` requires the incremental-versus-full decision to be taken **before** the
+  expensive work, and to determine the **compute** set rather than only the write set. No rule for
+  computing that set exists. Cross-file resolution needs data from files that did not change, so a
+  correct compute set is strictly larger than the change set — and how much larger is the unknown.
+- **consequence:** without it, `FR-011` is unimplementable and the honest fallback is what prior art
+  did: run everything, then decide. `analysis/0003` marks this `elevated` — no precedent anywhere — and
+  `PERF-6`, `FR-012` and `COR-2` all depend on it.
+- **verification:** the gap is verified: the rule does not exist and nothing was found that has one.
+  What needs verifying is any *candidate* rule. Note the grounding recorded that the obvious approach —
+  following import edges — is insufficient for inheritance and type resolution, and degrades unsafely
+  when it fails, so a candidate must be checked against those cases specifically.
+- **relates:** blocks `FR-011`; entangled with `GAP-007`; decides `discussions/0002` axis 4. **This and
+  `GAP-007` are one risk.** Prototype before scheduling.
+
+### GAP-010 — The per-slot store product list is unknown
+- **kind:** knowledge · **confidence:** `known` · **disposition:** `open`
+- **source:** `PROMPT.md` Appendix A, read 2026-08-20 — it records that the requester named products per
+  slot, and the list did not survive into the prompt
+- **missing:** which products are the compatibility targets for the six store slots. Only the slot names
+  were carried.
+- **consequence:** `EXT-9`'s async screening record is empty, so `questions/0003` cannot be answered —
+  and that question must be answered during screening, never after, because retrofitting async through
+  a synchronous trait is a rewrite.
+- **relates:** owned by `questions/0010`. Mitigated: `specs/04` specifies capability profiles with
+  `presumed` candidates, so this is an inconvenience rather than a blocker by design.
+
+### GAP-011 — Two required store slots have no consuming capability
+- **kind:** coverage · **confidence:** `known` · **disposition:** **partially closed 2026-08-20**
+- **update, 2026-08-20:** **the search slot now has a consumer and this half is closed.** The requester
+  dropped the text-search slot and placed `FR-017`'s lexical index in the search slot, which makes
+  `EXT-4` required rather than optional. It also *resolved* the per-document-update hazard rather than
+  relocating it, since a general-purpose search engine satisfies that natively. **The key-value half
+  remains fully open** — naming Valkey, Redis and RocksDB for it does not create a consumer.
+- **source:** `analysis/0001` store cross-tabulation, 2026-08-20
+- **missing:** the capability list requires a swappable **search index** and **key-value store**. Counting
+  the capability inventory, **no capability reads or writes either.**
+- **consequence:** an abstraction with no consumer cannot be validated, and its conformance suite tests an
+  interface nobody calls. Building both is speculative work; dropping them silently contradicts the
+  capability list.
+- **relates:** `EXT-4`, `EXT-6` specify them as optional and flag this. Owned by **B2**. Note
+  `questions/0011` could give the search slot a consumer if the wiki persists documents.
+
+### GAP-012 — The permissive-alternative precedent column is unverified
+- **kind:** knowledge · **confidence:** `presumed` · **disposition:** `open`
+- **source:** `analysis/0003`, 2026-08-20
+- **missing:** every ✓ in that matrix's permissive column is a capability **claim** from a survey. No
+  permissive tool was installed, run or read.
+- **consequence:** the matrix is used to decide which capabilities carry proof of feasibility. If a claim
+  is wrong, a capability moves from `routine` to `elevated` and should have been prototyped.
+- **verification:** **unverified, and the grounding records exactly this trap** — a capability whose
+  *name* matched was repeatedly taken as evidence it existed, and adversarial refutation overturned
+  three of four such verdicts. Track **C** exists to convert claims into verified precedent. Until then
+  treat the column as `presumed` throughout.
+- **relates:** owned by Track **C**. Bears on `FR-005` (declarative formats) and `FR-026` (diff impact)
+  most, since both rest on a single unverified claim.
+
+### GAP-013 — No detection or response for a misbehaving agent
+- **kind:** capability · **confidence:** `discovered` · **disposition:** `open`
+- **source:** `analysis/0006-threat-model.md`, 2026-08-20 — surfaced while enumerating adversaries
+- **missing:** with up to ~10 000 agent principals acting autonomously, one behaving badly with a
+  **legitimate** credential is a routine expectation. The corpus records the action (`SEC-6`) and bounds
+  it (`SEC-9`) and offers nothing for detecting or responding to it: no anomaly signal, no revocation
+  requirement beyond credential expiry, and no policy for what happens after a limit is hit repeatedly.
+- **consequence:** the likeliest incident class is the least mitigated. And `OPS-6` forbids per-principal
+  metric labels for cardinality reasons — correctly — which removes the obvious detection surface, so
+  this is a design tension rather than an oversight.
+- **relates:** owned by **D1** (telemetry) jointly with security. Adversary T3.
+
+### GAP-014 — `git-ctx` is unavailable on crates.io, and the incumbent has colliding semantics
+- **kind:** knowledge · **confidence:** `known` · **disposition:** `open`
+- **source:** registry check, 2026-08-20 — `questions/0001`'s own outstanding verification item
+- **missing:** a publishable name for the CLI. A live MIT crate named exactly `git-ctx` (0.1.1, published
+  2022, not yanked) is *"a git custom command to list and switch most recent branches"*.
+- **consequence:** two problems. The registry name cannot be used; and the `-ctx`-signals-context-switching
+  risk that `questions/0001` recorded as an acceptable residual is now a **live conflict with a published
+  tool that does exactly that**. Both are cheaper to settle before anything ships than after.
+- **relates:** owned by the requester, via `questions/0001`. Not blocking — nothing is published.
+  Mitigating facts: 13 recent downloads, no repository URL, untouched since March 2022.
+
+### GAP-015 — MUST-level requirements are not prioritised among themselves
+- **kind:** coverage · **confidence:** `known` · **disposition:** `open`
+- **source:** self-assessment against the external SRS reference's quality criteria, `specs/09`, 2026-08-20
+- **missing:** 58 features and ~140 requirements are MUST, with no ordering. Nobody has said which MUST is
+  allowed to slip if a date pressures the scope.
+- **consequence:** under time pressure a capability gets dropped by whoever is closest to it, and is later
+  described as never having been in scope. That is the failure the house convention of naming out-of-scope
+  items **by name** exists to prevent, applied one level up.
+- **relates:** arguably the architect's sequencing rather than a requirements concern. `questions/0006`
+  holds the open residual and names the natural answer if one is wanted: the `GAP-007`/`GAP-009` cluster
+  is the deepest dependency and cannot be deferred without deferring the product.
+
+### GAP-016 — The wiki's prose half can only be verified by a person
+- **kind:** verification · **confidence:** `known` · **disposition:** `open`
+- **source:** requirements authoring, 2026-08-20 · **narrowed the same day**
+- **missing:** narrative quality is not automatically assertable. `FR-036`'s **structure** is fully
+  testable — one page per derived cluster plus an overview, cross-references resolving to graph
+  identities, index generation per page, stability across runs. Its **prose** is not, and its verification
+  names a reviewer.
+- **consequence:** one requirement in the corpus has a human in its verification loop. That is a genuine
+  limit rather than a defect, and the risk is that it quietly becomes untested rather than
+  human-tested.
+- **⚠️ This entry was filed wrong and is corrected here.** As originally written it claimed `FR-036` had
+  **no** verification method because the wiki had no output contract. **That was false.** The prior art
+  ships this capability and its **public documentation** describes the contract — which the clean-room
+  protocol explicitly permits reading. The requirements author asserted an absence without looking in the
+  one place that was both permitted and obvious. **This is the register's own failure mode, from its own
+  opening section: acting on an unverified gap, where a gap felt like knowledge.** Recorded rather than
+  edited away, because a refuted claim is evidence about the process.
+- **relates:** `questions/0011`, now narrowed to three residuals — whether prose is wanted in v1 (a
+  security-surface decision), whether cluster-shaped modules read well, and where the document set goes.
+
+### GAP-017 — Streaming and cancellation of a read may be latent in the contract but are unspecified
+- **kind:** coverage · **confidence:** `inferred` · **disposition:** `open`
+- **source:** `questions/0009`, 2026-08-20, while assessing what a terminal surface would need
+- **missing:** no surface specifies streaming or cancellation of a read. But three requirements are
+  adjacent to it: `IF-6` bounds output and reports truncation as a field (a partial answer by another
+  name); `PERF-5` requires a traversal to return `undetermined` on budget exhaustion (so the traversal is
+  already cancellable internally); and `US-G-3`/`US-G-4` describe an agent branching on partial and
+  inconclusive results.
+- **consequence:** if the requirement is latent and never made explicit, it gets implemented per surface —
+  which is `IF-1`'s divergence failure. And retrofitting streaming through a request/response contract has
+  the same character as retrofitting async.
+- **verification:** the inference rests on the premise that `IF-6`'s truncation and `PERF-5`'s budget
+  exhaustion are the same mechanism as incremental delivery. Confirm by drafting the internal contract's
+  read signature and seeing whether one shape serves all three.
+- **relates:** owned by **B5**. Interacts with `questions/0009`, whose recommendation turns on this.
+
+### GAP-018 — Edges are conditional on a build configuration, and no requirement can express that
+- **kind:** capability · **confidence:** `known` · **disposition:** `open`
+- **source:** `analysis/0007-target-corpus-implications.md`, 2026-08-20, derived from the target-corpus answer
+- **missing:** the target corpus uses conditional compilation, and `CON-7` **mandates** per-backend feature
+  flags — at the store seam `EXT-1`–`EXT-6` describe. So an edge may exist only under some feature sets.
+  `FR-024` states its edge set and depth bound and has **no way to state a build configuration**.
+- **consequence:** a blast radius computed under one feature set is wrong under another. A symbol reachable
+  only when a feature is enabled is either included — overstating reach for a deployment that disables it —
+  or excluded, understating it for one that enables it. **Both are wrong answers presented as answers**,
+  which is exactly what `COR-1`'s three-state contract exists to prevent, one level lower.
+- **verification:** the gap is derived, and every step is checkable in this corpus: `CON-7` mandates
+  feature flags; feature flags make edges conditional; `FR-024`'s response schema has no field for a
+  feature set. No measurement needed.
+- **relates:** owned by **B3** — it is a data-model question before a query one, so it must be settled
+  **before any schema**. `FR-024` carries a dated open note. Interacts with `FR-026`–`FR-028`, since diff
+  impact inherits the same defect.
+
+### GAP-019 — The scale target is uncalibrated, and there is nothing yet to calibrate it against
+- **kind:** verification · **confidence:** `inferred` · **disposition:** `open`
+- **source:** `analysis/0007`, 2026-08-20 · **re-scoped the same day**
+- **missing:** `SCALE-1` targets one million nodes per repository, derived from what a large polyglot
+  monorepo reaches. The primary corpus will be a Rust crate workspace, which is very unlikely to reach it.
+  So the budgets in `specs/03` would be validated against a generated corpus and may be met trivially on
+  the corpus that actually matters.
+- **consequence:** two opposite risks. Budgets that look comfortably met because the real corpus is small;
+  and correctness work calibrated on a corpus too small to expose the problems `SCALE-1` was written for.
+- **verification:** **⚠️ re-scoped 2026-08-20.** This entry originally said *"a crude symbol count over
+  the target workspace would settle the order of magnitude today, without the platform existing"*. **That
+  was false: the target workspace does not exist.** `main` holds three files and this plan; there is no
+  `crates/` tree. So the verification is not a count — it is a **choice**: pick a comparable real Rust
+  workspace to calibrate against, then count that. Nobody has picked one.
+- **consequence of the re-scope, which is a new finding:** the first corpus this platform is tested against
+  **cannot be its own**. It must be borrowed, and which repository that is determines what every early
+  fixture looks like. That is an unowned decision, not a measurement.
+- **relates:** `SCALE-1` carries a dated amendment. Resolution is two corpora, not a changed target.
+  Blocks nothing today; blocks any claim that a budget has been validated.
+
+### GAP-020 — Crate names taken from the module-seam sketch would reproduce reference tool names
+- **kind:** knowledge · **confidence:** `known` · **disposition:** `open`
+- **source:** re-check of the sketch against the reference's public documentation, 2026-08-20
+- **missing:** an instruction to the architect not to name crates after the sketch's nodes. The sketch is
+  a **transcription of the reference's public command surface** — five of its node descriptions match the
+  public documentation verbatim (`analysis/0002`) — and the clean-room protocol's MUST NOT list explicitly
+  covers **tool names**. So the sketch is safe to reason from and **unsafe to name from**.
+- **consequence:** a crate layout named after the sketch would carry reference tool names into a published
+  AGPL artefact, which is the one class of laundering failure that is externally visible. `CON-8` keeps this
+  corpus clean of crate names; nothing currently protects the architect's deliverable, which is where the
+  names will actually be chosen.
+- **verification:** verified — the description match was checked against both documents.
+- **relates:** owned by **B1**/**B6** (whoever fixes the layout). `CON-1` carries a clause; `CON-9`'s
+  placeholder discipline is the adjacent rule. **The laundering denylist in `scripts/audit-corpus.py` will
+  not catch this**, because it audits this corpus and not the future workspace.
+
+### GAP-021 — The search slot has no embedded implementation, so it is not yet a proven seam
+- **kind:** coverage · **confidence:** `known` · **disposition:** `open`
+- **source:** the requester's decision of 2026-08-20 placing lexical ranking in the search slot
+- **missing:** `REV-2` requires two implementations per slot — one embedded, one networked — because two
+  is what proves a seam is real and one makes it a wrapper. The search slot now carries `FR-017`'s lexical
+  index and has exactly **one** candidate, OpenSearch, which is networked-only. **There is no embedded
+  OpenSearch**, and the supplied candidate list contains no pure-Rust lexical index.
+- **consequence:** the local shape has no lexical lane at all, so `FR-021`'s hybrid search degrades to
+  traversal-plus-semantic there — which `FR-021` permits and requires it to report, but which makes the
+  two deployment shapes differ in *capability* rather than only in configuration. That is uncomfortably
+  close to what `CON-2` forbids.
+- **relates:** owned by **B2**. `EXT-4` carries the note. Closing it needs one named embedded candidate;
+  the requester's list does not contain one, so this is a genuine addition rather than a screening task.
+
+### GAP-022 — An existing crate may already be the graph slot's abstraction, and no sync owns assessing it
+- **kind:** knowledge · **confidence:** `discovered` · **disposition:** `open`
+- **source:** the graph-slot screen, 2026-08-20 (`analysis/0008`)
+- **missing:** an assessment of `grust-graph` — MIT OR Apache-2.0, updated 2026-08-06 — which describes
+  itself as *"a backend-neutral property graph facade for Rust"* and ships optional backends for nine
+  engines plus an in-memory implementation, with Cypher support. A sibling crate provides a Ladybug
+  backend. **That is `EXT-1`'s seam, existing, as prior art.**
+- **consequence:** if it is usable, a substantial part of the most consequential abstraction in the system
+  may not need building. If it is not, reading it is still the cheapest available education on where such
+  a seam leaks. Either way, designing ours without looking at it is waste.
+- **verification:** discovered from registry metadata only. Nothing was read or run. It is young (first
+  published 2026-06-07) and lightly adopted (1,531 downloads), and its backend list does **not** include
+  Neo4j — so it is not a drop-in answer and should not be treated as one.
+- **relates:** Track **C** material under the shared outcome vocabulary — adopt · vendor · emulate · take
+  the UX only · decline. **No sync currently owns it**; it fits alongside C2–C4 and needs adding.
+
+### GAP-023 — The permissive-alternative survey has expired, and a peer implementation now exists
+- **kind:** knowledge · **confidence:** `discovered` · **disposition:** `open`
+- **source:** identifying `kin` from the graph-candidate list, 2026-08-20 (`findings/0001`)
+- **missing:** an assessment of `kin` — Rust, **Apache-2.0**, v0.5.19, actively developed — which describes
+  itself as a persistent graph of code entities, relationships and provenance, with a CLI, a daemon and an
+  MCP surface, so that *"humans and AI agents see what a change touches before it merges."* **That is
+  substantially the product this corpus specifies**, in the same language, under a permissive licence.
+- **consequence:** this plan's premise is that the capable prior art cannot be used for licence reasons and
+  that **nothing permissive spans both halves of the capability**. That conclusion came from a survey `kin`
+  was not in — plausibly because it did not yet exist in usable form. **The survey has expired, not been
+  refuted**, and the build-versus-adopt comparison was made against it.
+- **verification:** ⚠️ **nothing has been read or run.** Registry metadata and the project's own marketing
+  only. `analysis/0003` note 19 binds: public descriptions are evidence of contract, never of mechanism —
+  and its central claim is near-identical to the one the grounding measured, in the other tool, to be a
+  single hop rather than a traversal. Three checks, in order: (1) the open-core boundary — which
+  capabilities are Apache-2.0 and which are the commercial tier, since `EXT-8` clause 3 requires assessing
+  a grant not a category; (2) whether its impact analysis distinguishes *nothing affected* from *could not
+  determine*, which is `COR-1` and the property the prior art got wrong while claiming otherwise; (3) only
+  then a capability comparison, `inaccessible` and `elevated` rows first.
+- **relates:** owned by **A4**, using Track **C**'s outcome vocabulary. **Escalates to the requester as a
+  premise question**, not an architecture one. Note `CON-1` does **not** apply — Apache-2.0 means reading
+  it taints nobody, and this corpus now forbids reading the tool it replaces while permitting reading the
+  tool that may replace it.
+
+## Triage and verification pass — 2026-08-20
+
+The A-track requirements work is the first substantial pass over the register, so both the **triage**
+rhythm (classify new entries) and the **verification pass** rhythm (every `presumed` and `hypothetical`
+entry gets verified or stamped) are recorded here rather than deferred.
+
+**Twelve new entries filed** (`GAP-009`–`GAP-020`), all triaged on filing. Register size: 8 → 20.
+`GAP-018` and `GAP-019` arrived in a second pass from the requester's answer on the target corpus;
+`GAP-020` from re-checking the module-seam sketch against the reference's public documentation.
+
+### Verification pass over the seeded eight
+
+| Gap | Confidence before | After | What this session established |
+|---|---|---|---|
+| **GAP-001** TUI | `discovered` | `discovered`, unchanged | Now owned by `questions/0009` and recorded in the SPEC as an **explicit absence** (`IF-14`), so it can no longer be silently dropped. `GAP-017` surfaced from assessing it, and is arguably the more important half. |
+| **GAP-002** relational store has no home | `known` | `known`, unchanged | The **requirement** now exists (`EXT-3`) and is where all authoritative data lives. What remains unplaced is the *design* home, which is `B1`/`B3`. The gap is narrower than filed but not closed. |
+| **GAP-003** change→symbol mapping may need a structural diff | `inferred` | `inferred`, **stamped unverified (1)** | Sharpened rather than resolved: `FR-028` makes patch-without-checkout a v1 MUST, so this inference now gates a MUST rather than a nicety. Its verification — a worked example on a moved function — is still not done. |
+| **GAP-004** several NFRs are unverifiable | `known` | `known`, unchanged | `specs/03` now names the measuring signal per budget, and `OPS-1` states that these requirements are unverifiable without telemetry. So the gap is fully specified and entirely unclosed. **D1 remains the blocker for calling the non-functional requirements done.** |
+| **GAP-005** declarative config not analysable | `known` | `known`, **partially challenged** | `analysis/0003` found a **claimed** permissive precedent for infrastructure indexing. The claim is unverified (`GAP-012`), so this stays `known` — but the original wording *"no surveyed prior art covers these well"* should be read as *no prior art was verified to*. `FR-005` now exists as a SHOULD. |
+| **GAP-006** the write side is barely explored | `hypothetical` | `hypothetical`, **stamped unverified (1)** | Partially superseded: `FR-050` specifies coordinated rename, so one write capability is now real. The speculative remainder — codemods, mechanical migrations — is untouched and still must not be scheduled. **A4 should develop or kill it.** |
+| **GAP-007** derived identities may need stability | `inferred` | `inferred`, unchanged — **and now has a named cheap check** | `questions/0004` states the verification explicitly: confirm whether derived identifiers are externally visible. If they are internal-only, **this is refuted and the hardest algorithmic requirement in the corpus disappears.** Highest-value verification in the register. |
+| **GAP-008** no confidence model for inferred cross-repo edges | `presumed` | `presumed`, **stamped unverified (1)** | `FR-047` now requires the **representation** (evidence class per edge) while deliberately leaving the **weighting** unspecified, precisely because nobody has surveyed prior art. So the gap is correctly scoped and still unverified. |
+
+**No entry has three unverified stamps**, so nothing is escalated this pass. Four entries now carry one
+stamp: `GAP-003`, `GAP-006`, `GAP-008`, and (as of filing) `GAP-012`.
+
+### The register's shape after this pass
+
+| Confidence | Count | Entries |
+|---|---:|---|
+| `known` | 11 | 002, 004, 005, 009, 010, 011, 014, 015, 016, 018, 020 |
+| `discovered` | 2 | 001, 013 |
+| `inferred` | 4 | 003, 007, 017, 019 |
+| `presumed` | 2 | 008, 012 |
+| `hypothetical` | 1 | 006 |
+
+All 20 are `open`. **Nothing is `scheduled`**, which is correct — there is no backlog (`questions/0002`),
+and several of the highest-value entries are unverified and therefore ineligible under the binding rule.
+
+**Two entries to act on first, both cheap and both capable of deleting work:**
+
+- **`GAP-007`** — one check of whether derived identifiers are externally visible. Best outcome is
+  refutation, which removes the hardest algorithmic requirement in the corpus.
+- **`GAP-019`** — pick the borrowed corpus. It cannot be this project's own workspace, which does not
+  exist, so someone must choose a comparable real Rust workspace; that choice shapes every early fixture.
+  *(Re-scoped 2026-08-20 — this previously read "a crude symbol count settles it today", against nothing.)*
+
+**And one to act on early because it is upstream of a schema:** `GAP-018`. It is `known`, it is derived
+rather than speculated, and `B3` cannot write a data model without settling it.
+
+### A note on this pass's own failure
+
+`GAP-016` was filed asserting that a requirement had **no** verification method because no output
+contract existed. The contract existed, in a public document the clean-room protocol explicitly permitted
+reading. The register's opening section names this exactly — *"acting on an unverified gap… it is easy,
+because a gap feels like knowledge"* — and it happened to the person writing the register, in the same
+session. **The lesson is not "check harder"; it is that an asserted absence is a claim needing the same
+verification as an asserted presence**, and the `confidence` axis exists to force that. `GAP-016` should
+have been filed `presumed`, not `known`.
+
 ## How we will know this process failed
 
 - A sync produces a gap that never reaches the register.
@@ -233,3 +530,24 @@ it out substantially, and A4 exists specifically to generate `hypothetical` entr
 
 - **2026-08-20** — Created. Split the requester's six-term taxonomy into orthogonal `confidence` and
   `disposition` axes, added `kind`, and seeded eight entries covering every confidence level.
+- **2026-08-20 (same day, third pass)** — **`GAP-020` filed.** Re-checking rows 034 and 035 against the
+  reference's public documentation left both dispositions unchanged — the docs state an *intent*, not a
+  contract — but established that the requester's module-seam sketch is a **transcription of the
+  reference's public command surface**, which makes it unsafe to derive crate names from. Also recorded, in
+  `analysis/0003` note 19: **this reference's public descriptions overstate its measured behaviour**, so
+  they are evidence of contract and never of mechanism, and where they conflict with the grounding the
+  grounding wins.
+- **2026-08-20 (same day, second pass)** — **`GAP-018` and `GAP-019` filed** from the requester's answer
+  on the target corpus: edges are conditional on a build configuration and no requirement can express
+  that, and the scale target is uncalibrated against the primary corpus. **`GAP-016` corrected** — it had
+  asserted an absence that a permitted public document refuted, which is the register's own documented
+  failure mode occurring inside the register. It should have been `presumed`, not `known`; the correction
+  is recorded in place rather than edited away.
+- **2026-08-20 (same day, during the A-track requirements authoring)** — **Nine entries filed
+  (`GAP-009`–`GAP-017`) and a triage plus verification pass run over the seeded eight.** Register 8 → 17.
+  Four entries now carry one unverified stamp; none is escalated. `GAP-005`'s premise is partially
+  challenged — a *claimed* permissive precedent for declarative-format analysis exists, and the claim is
+  itself unverified (`GAP-012`), so the original wording should be read as "no prior art was **verified**
+  to cover these well". `GAP-006` is partially superseded by `FR-050`. **`GAP-009` and `GAP-007` are one
+  risk, not two**, and `GAP-007`'s verification is the cheapest high-value action in the register because
+  its best outcome is refutation.
