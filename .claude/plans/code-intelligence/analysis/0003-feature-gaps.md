@@ -77,7 +77,7 @@ and here it should be the opposite of relief.
 | 033 | Read-only structural checks | ✓ | ✓ | ✓ | routine |
 | 034 | Response-shape conformance | ✓ | ✗ | ✗ | **inaccessible** · see note 9 |
 | 035 | Route pre-change report | ✓ | ✗ | — | inaccessible — but it is a projection over 024 |
-| 036 | Repository wiki | ✓ | ✗ | ◐ | inaccessible · and unspecified (`questions/0011`) |
+| 036 | Repository wiki | ✓ | ✗ | ◐ | single-source · see note 17 |
 | 037 | Statement-level dependence | ✓ | ✓ | ✓ | routine — deferred to v2 |
 | 038 | Taint findings | ✓ | ✓ | ◐ | routine — deferred to v2 · see note 10 |
 | 039 | Freshness on every answer | ✗ | ✗ | ✓ | routine |
@@ -168,6 +168,12 @@ and here it should be the opposite of relief.
    reference is known to do it. It is also the capability whose *correctness* is least well-defined,
    because an inferred shape yields findings that are evidence rather than proof — which is why `FR-034`
    requires declared and inferred shapes to be distinguished.
+
+   **Amended 2026-08-20 — materially de-risked for the primary corpus.** The target corpus communicates
+   over gRPC/HTTP (`analysis/0007`), and those schemas are **declared**. So the dominant case becomes
+   "compare a declared contract against observed consumer accesses", which is a far stronger footing than
+   inference. The `inaccessible` disposition stands for ad-hoc handlers returning unstructured payloads;
+   the hardest instance of this capability just became its easiest.
 10. **Taint has readable permissive precedent, and it is partial in an important way.** One mature
     Apache-licensed tool does interprocedural taint properly; another does inter-method taint **within a
     file** but not across files. Deferred to v2, so this is recorded rather than acted on — but it means
@@ -198,6 +204,19 @@ and here it should be the opposite of relief.
 16. **Upgrade-without-reindex is single-source via general precedent.** Schema migration is routine
     software engineering. What has no precedent is doing it for a *derived* graph whose derived
     identities are part of the query surface, which folds back into note 6.
+17. **The wiki is `single-source`, not `inaccessible`, and this note corrects an error.** *(Added
+    2026-08-20.)* The reference's wiki is documented in its **public** documentation, which the clean-room
+    protocol explicitly permits reading for capability vocabulary — so the precedent is **readable** at the
+    contract level even though its source is not. The publicly-described behaviour is: a language model
+    groups files into modules, a page is generated per module plus an overview, and the pages cross-reference
+    the knowledge graph.
+
+    This changes the disposition and it changes the requirement: `FR-036` now specifies a structured
+    document set with **deterministic** module grouping from derived clusters, and prose as a separately
+    gated optional stage — deliberately *not* following the precedent's LLM grouping, with the cost of that
+    choice recorded. **The general lesson for this matrix: `inaccessible` means the *design* is unreadable,
+    and a capability's public documentation is not its design. Two other rows may be misdispositioned for
+    the same reason** — 034 and 035 — and nobody has checked their public documentation either.
 
 ## Where the risk actually concentrates
 
@@ -206,8 +225,8 @@ Counting the matrix:
 | Class | Count | Capabilities |
 |---|---:|---|
 | routine | 38 | mostly platform and query |
-| single-source | 6 | 004, 005, 026, 060, 073, and 021's ranking half |
-| **inaccessible** | 9 | 007, 008, **009**, **010**, 034, 035, 036, 043, **044** |
+| single-source | 7 | 004, 005, 026, 036, 060, 073, and 021's ranking half |
+| **inaccessible** | 8 | 007, 008, **009**, **010**, 034, 035, 043, **044** |
 | **elevated** | 7 | **011**, 012 (graph half), **018**, **028**, **047**, **050** |
 
 **Two findings matter more than the counts:**
@@ -232,7 +251,7 @@ All seven were confirmed wanted on 2026-08-20. Their precedent, since that was t
 | Shortest-path trace with a witness | `FR-023` | ✓ ref, ◐ perm — routine (graph search) |
 | Route-to-handler mapping | `FR-007` | ✓ ref — inaccessible for the generic form |
 | RPC/tool-definition mapping | `FR-008` | ✓ ref only — inaccessible |
-| Response-shape conformance | `FR-034` | ✓ ref only — **inaccessible**, and least well-defined |
+| Response-shape conformance | `FR-034` | ✓ ref only — `inaccessible` for inferred shapes; **de-risked** where schemas are declared, which is the primary corpus (note 9) |
 | Pre-change route report | `FR-035` | ✓ ref only — inaccessible, but a projection over `FR-024` |
 | Coordinated multi-file rename | `FR-050` | ✗ for the required combination — **elevated** |
 
@@ -261,6 +280,11 @@ rename. Both were worth adding; both should be prototyped rather than designed o
   throughout**, and see `GAP-012`.
 - **The `Ref` column is second-hand.** It comes from the grounding rather than from reading source,
   which is correct under `CON-1` and does mean the granularity is coarse.
+- **The `Ref` column also under-uses a permitted source, and this was caught once.** The clean-room
+  protocol permits reading the prior art's **public documentation** for capability vocabulary, and doing
+  so for the wiki overturned its disposition (note 17). **That check has not been run for any other
+  row.** So every `inaccessible` entry here should be read as "we did not look at the public docs", not
+  as "no readable description exists" — and 034 and 035 are the two most likely to move.
 - **The `Gen` column is judgement.** "Routine precedent in general-purpose software" is not something
   this document measured.
 - **No feasibility prototype has been built for any `elevated` entry.** That is the recommendation this
@@ -270,6 +294,12 @@ rename. Both were worth adding; both should be prototyped rather than designed o
 
 ## Amendments
 
+- **2026-08-20 (same day, second pass)** — **`CAP-036` reclassified `inaccessible` → `single-source`**,
+  and note 17 added. The error was treating "we may not read its source" as "we may not read anything":
+  the prior art's **public documentation** describes the wiki's contract, and the clean-room protocol
+  explicitly permits reading public docs for capability vocabulary. **Rows 034 and 035 may be
+  misdispositioned for the same reason and have not been re-checked.** Note 9 amended: response-shape
+  conformance is materially de-risked where schemas are declared, which is the primary corpus.
 - **2026-08-20** — Created.
 
 ## Related

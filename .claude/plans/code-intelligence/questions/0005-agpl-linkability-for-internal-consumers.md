@@ -84,11 +84,32 @@ judgement.
 Not in scope for this plan, and it is the requester's decision, not the architect's. Recorded so the
 option is visible rather than assumed away.
 
+## Narrowed 2026-08-20 by the target-corpus answer
+
+The target corpus is a **single Rust workspace** of library and binary crates, with the binaries consuming
+the libraries (`analysis/0007-target-corpus-implications.md`).
+
+**So there is no licence tension inside the corpus.** The consuming binaries live in the same workspace
+under the same AGPL-3.0 licence; linking is exactly what they are meant to do, and `CON-4` costs nothing
+there.
+
+**`CON-4` therefore bites only on consumers outside `git-cmds`**, which is a much smaller and much more
+answerable question than the one this file originally posed. Step 1 below becomes: *is there a codebase
+**outside this workspace** that needs to embed the engine rather than call it?*
+
+Two riders:
+
+- **This narrows the question, it does not close it.** A workspace-internal consumer is fine today; the
+  moment any crate here is published for external consumption, `CON-4` applies to whoever links it.
+- **`CON-5` is untouched.** The §13 obligation attaches to network exposure, not to linking, so the
+  microservice pattern the corpus describes — several binaries over gRPC/HTTP — raises it as soon as any
+  of those endpoints faces a user outside the organisation.
+
 ## Recommendation
 
-**Establish step 1 before anything else.** It is a single question to the requester — *is there a
-codebase that would embed this?* — and a "no" closes the question at zero cost with a revisit trigger,
-while a "yes" makes it one of the more consequential inputs to `B6`.
+**Establish step 1 before anything else, in its narrowed form.** It is a single question to the requester
+— *is there a codebase outside this workspace that would embed this?* — and a "no" closes the question at
+zero cost with a revisit trigger, while a "yes" makes it one of the more consequential inputs to `B6`.
 
 ## Related
 

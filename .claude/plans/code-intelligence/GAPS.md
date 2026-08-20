@@ -309,16 +309,25 @@ it out substantially, and A4 exists specifically to generate `hypothetical` entr
   holds the open residual and names the natural answer if one is wanted: the `GAP-007`/`GAP-009` cluster
   is the deepest dependency and cannot be deferred without deferring the product.
 
-### GAP-016 — `FR-036` has no verification method
+### GAP-016 — The wiki's prose half can only be verified by a person
 - **kind:** verification · **confidence:** `known` · **disposition:** `open`
-- **source:** requirements authoring, 2026-08-20
-- **missing:** the repository wiki has no output contract, so no test can be written. It is the only
-  requirement in `specs/02` in that state, and `US-N-1` is recorded as not implementable because of it.
-- **consequence:** a requirement nobody can test is a wish. Worse, the cheapest thing to build — generated
-  prose via an AI provider — would add a **code-egress path** through a documentation feature that nobody
-  reviewed.
-- **relates:** owned by `questions/0011`, which recommends answering the AI-provider half first because it
-  is a security-surface decision rather than a product one.
+- **source:** requirements authoring, 2026-08-20 · **narrowed the same day**
+- **missing:** narrative quality is not automatically assertable. `FR-036`'s **structure** is fully
+  testable — one page per derived cluster plus an overview, cross-references resolving to graph
+  identities, index generation per page, stability across runs. Its **prose** is not, and its verification
+  names a reviewer.
+- **consequence:** one requirement in the corpus has a human in its verification loop. That is a genuine
+  limit rather than a defect, and the risk is that it quietly becomes untested rather than
+  human-tested.
+- **⚠️ This entry was filed wrong and is corrected here.** As originally written it claimed `FR-036` had
+  **no** verification method because the wiki had no output contract. **That was false.** The prior art
+  ships this capability and its **public documentation** describes the contract — which the clean-room
+  protocol explicitly permits reading. The requirements author asserted an absence without looking in the
+  one place that was both permitted and obvious. **This is the register's own failure mode, from its own
+  opening section: acting on an unverified gap, where a gap felt like knowledge.** Recorded rather than
+  edited away, because a refuted claim is evidence about the process.
+- **relates:** `questions/0011`, now narrowed to three residuals — whether prose is wanted in v1 (a
+  security-surface decision), whether cluster-shaped modules read well, and where the document set goes.
 
 ### GAP-017 — Streaming and cancellation of a read may be latent in the contract but are unspecified
 - **kind:** coverage · **confidence:** `inferred` · **disposition:** `open`
@@ -336,13 +345,45 @@ it out substantially, and A4 exists specifically to generate `hypothetical` entr
   read signature and seeing whether one shape serves all three.
 - **relates:** owned by **B5**. Interacts with `questions/0009`, whose recommendation turns on this.
 
+### GAP-018 — Edges are conditional on a build configuration, and no requirement can express that
+- **kind:** capability · **confidence:** `known` · **disposition:** `open`
+- **source:** `analysis/0007-target-corpus-implications.md`, 2026-08-20, derived from the target-corpus answer
+- **missing:** the target corpus uses conditional compilation, and `CON-7` **mandates** per-backend feature
+  flags — at the store seam `EXT-1`–`EXT-6` describe. So an edge may exist only under some feature sets.
+  `FR-024` states its edge set and depth bound and has **no way to state a build configuration**.
+- **consequence:** a blast radius computed under one feature set is wrong under another. A symbol reachable
+  only when a feature is enabled is either included — overstating reach for a deployment that disables it —
+  or excluded, understating it for one that enables it. **Both are wrong answers presented as answers**,
+  which is exactly what `COR-1`'s three-state contract exists to prevent, one level lower.
+- **verification:** the gap is derived, and every step is checkable in this corpus: `CON-7` mandates
+  feature flags; feature flags make edges conditional; `FR-024`'s response schema has no field for a
+  feature set. No measurement needed.
+- **relates:** owned by **B3** — it is a data-model question before a query one, so it must be settled
+  **before any schema**. `FR-024` carries a dated open note. Interacts with `FR-026`–`FR-028`, since diff
+  impact inherits the same defect.
+
+### GAP-019 — The scale target is uncalibrated against the primary corpus
+- **kind:** verification · **confidence:** `inferred` · **disposition:** `open`
+- **source:** `analysis/0007`, 2026-08-20
+- **missing:** `SCALE-1` targets one million nodes per repository, derived from what a large polyglot
+  monorepo reaches. The primary corpus is a Rust crate workspace, which is very unlikely to reach it. So
+  the budgets in `specs/03` are validated against a generated corpus and may be met trivially on the
+  corpus that actually matters.
+- **consequence:** two opposite risks. Budgets that look comfortably met because the real corpus is small;
+  and correctness work calibrated on a corpus too small to expose the problems `SCALE-1` was written for.
+- **verification:** the inference rests on the premise that a crate workspace is well under a million
+  nodes. **Nobody has counted.** A crude symbol count over the target workspace would settle the order of
+  magnitude today, without the platform existing.
+- **relates:** `SCALE-1` carries a dated amendment. Resolution is two corpora, not a changed target.
+
 ## Triage and verification pass — 2026-08-20
 
 The A-track requirements work is the first substantial pass over the register, so both the **triage**
 rhythm (classify new entries) and the **verification pass** rhythm (every `presumed` and `hypothetical`
 entry gets verified or stamped) are recorded here rather than deferred.
 
-**Nine new entries filed** (`GAP-009`–`GAP-017`), all triaged on filing. Register size: 8 → 17.
+**Eleven new entries filed** (`GAP-009`–`GAP-019`), all triaged on filing. Register size: 8 → 19.
+`GAP-018` and `GAP-019` arrived in a second pass, from the requester's answer on the target corpus.
 
 ### Verification pass over the seeded eight
 
@@ -364,17 +405,34 @@ stamp: `GAP-003`, `GAP-006`, `GAP-008`, and (as of filing) `GAP-012`.
 
 | Confidence | Count | Entries |
 |---|---:|---|
-| `known` | 9 | 002, 004, 005, 009, 010, 011, 014, 015, 016 |
+| `known` | 10 | 002, 004, 005, 009, 010, 011, 014, 015, 016, 018 |
 | `discovered` | 2 | 001, 013 |
-| `inferred` | 3 | 003, 007, 017 |
+| `inferred` | 4 | 003, 007, 017, 019 |
 | `presumed` | 2 | 008, 012 |
 | `hypothetical` | 1 | 006 |
 
-All 17 are `open`. **Nothing is `scheduled`**, which is correct — there is no backlog (`questions/0002`),
-and three of the highest-value entries are unverified and therefore ineligible under the binding rule.
+All 19 are `open`. **Nothing is `scheduled`**, which is correct — there is no backlog (`questions/0002`),
+and several of the highest-value entries are unverified and therefore ineligible under the binding rule.
 
-**The entry to act on first is `GAP-007`**, because its verification is one cheap check and the best
-available outcome is refutation.
+**Two entries to act on first, both cheap and both capable of deleting work:**
+
+- **`GAP-007`** — one check of whether derived identifiers are externally visible. Best outcome is
+  refutation, which removes the hardest algorithmic requirement in the corpus.
+- **`GAP-019`** — a crude symbol count over the target workspace settles the order of magnitude today,
+  with no platform needed, and tells us whether `SCALE-1` is calibrated against anything real.
+
+**And one to act on early because it is upstream of a schema:** `GAP-018`. It is `known`, it is derived
+rather than speculated, and `B3` cannot write a data model without settling it.
+
+### A note on this pass's own failure
+
+`GAP-016` was filed asserting that a requirement had **no** verification method because no output
+contract existed. The contract existed, in a public document the clean-room protocol explicitly permitted
+reading. The register's opening section names this exactly — *"acting on an unverified gap… it is easy,
+because a gap feels like knowledge"* — and it happened to the person writing the register, in the same
+session. **The lesson is not "check harder"; it is that an asserted absence is a claim needing the same
+verification as an asserted presence**, and the `confidence` axis exists to force that. `GAP-016` should
+have been filed `presumed`, not `known`.
 
 ## How we will know this process failed
 
@@ -389,6 +447,12 @@ available outcome is refutation.
 
 - **2026-08-20** — Created. Split the requester's six-term taxonomy into orthogonal `confidence` and
   `disposition` axes, added `kind`, and seeded eight entries covering every confidence level.
+- **2026-08-20 (same day, second pass)** — **`GAP-018` and `GAP-019` filed** from the requester's answer
+  on the target corpus: edges are conditional on a build configuration and no requirement can express
+  that, and the scale target is uncalibrated against the primary corpus. **`GAP-016` corrected** — it had
+  asserted an absence that a permitted public document refuted, which is the register's own documented
+  failure mode occurring inside the register. It should have been `presumed`, not `known`; the correction
+  is recorded in place rather than edited away.
 - **2026-08-20 (same day, during the A-track requirements authoring)** — **Nine entries filed
   (`GAP-009`–`GAP-017`) and a triage plus verification pass run over the seeded eight.** Register 8 → 17.
   Four entries now carry one unverified stamp; none is escalated. `GAP-005`'s premise is partially

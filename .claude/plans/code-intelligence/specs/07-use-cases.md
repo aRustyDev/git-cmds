@@ -264,11 +264,15 @@ reference set; a failed index update reports failure rather than partial success
 **As** a product or programme lead, **I want** a generated wiki of the repository, **so that** I can
 understand what the system does without reading code.
 
-**Acceptance:** the wiki is derived from the graph, navigable without graph vocabulary, and states the
-index generation it was generated from. `FR-036`
+**Acceptance:** a document set with one page per derived cluster plus an overview; every cross-reference
+resolves to a real graph node; every page states the index generation; and **the set is still produced and
+still navigable with no AI provider configured**. Narrative text, where present, is attributed as
+generated. `FR-036`
 
-**Note:** currently blocked on `questions/0011` — the wiki has no output contract, so this story is
-not yet implementable and is recorded as such rather than given a plausible test.
+**Note:** the structural half is automatically assertable. Whether the prose reads well is judged by a
+named reviewer — the only human in this corpus's verification, and `FR-036` says so rather than pretending
+otherwise. *(Amended 2026-08-20: an earlier draft called this story not implementable for want of an
+output contract. It has one.)*
 
 ### US-N-2 — See which areas of the system a change touches
 
@@ -417,8 +421,9 @@ loudly. Neither returns a plausible answer computed from what remained.
 
 ### What is NOT proven
 
-- **`US-N-1` is not implementable.** The wiki has no output contract (`questions/0011`), and the story
-  is recorded with that stated rather than given a test it cannot have.
+- **`US-N-1`'s prose half rests on a human judgement**, not an assertion. Its structural half is
+  testable. *(Amended 2026-08-20 — this previously read "`US-N-1` is not implementable", which was
+  wrong: a contract was available in the prior art's public documentation all along.)*
 - **The non-technical stories are the least grounded.** No non-technical stakeholder has been consulted;
   all four are inferred from the capability list's web-UI and wiki items.
 - **`US-G-6` is conditional on an undecided question.** Its acceptance criterion is "whichever branch is

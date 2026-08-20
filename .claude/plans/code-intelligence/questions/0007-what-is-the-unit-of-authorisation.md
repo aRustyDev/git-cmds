@@ -80,23 +80,51 @@ later means revisiting `FR-024`'s contract, which is a contract change for every
    effectively forces the policy to be local or cached — which is itself a decision with a staleness
    consequence.
 
-## The monorepo question that decides it
+## The monorepo question — **answered 2026-08-20**
 
-**Is the target corpus many repositories or one large one?** Option A is adequate for the first and
-inadequate for the second, and nothing in the requirements says which. `SCALE-1` targets 500
-repositories per deployment *and* one million nodes per repository, which is consistent with either.
+It was asked as *"is the target corpus many repositories or one large one?"* on the grounds that option A
+is adequate for the first and inadequate for the second, and that it was the cheapest thing to establish
+before arguing the options.
 
-**That is the cheapest thing to establish, and it should be established before the options are
-argued.** It is a question for the requester, not for the architect.
+**Answer: one repository containing many deployable units** — a Rust workspace of library and binary
+crates, all under one tree (`analysis/0007-target-corpus-implications.md`).
+
+**Consequences, and they do most of the work this question needed:**
+
+1. **Option A is eliminated.** Repository-level entitlement over a single workspace holding every library
+   and every binary is all-or-nothing over the whole codebase. That is not an authorisation model.
+2. **Option B has a better formulation than "path".** The natural unit is a **workspace member**. Crate
+   boundaries are a *declared*, human-authored decomposition, not a path convention someone may
+   reorganise — so entitlement expressed against members is stable in a way that `crates/<name>/**` glob
+   patterns are not.
+3. **B's stated weakness partly survives.** Derived structures still have no natural home in it: a
+   **flow** spans members, and a **cluster** is a set of nodes that may cross member boundaries. So
+   entitlement over derived structures needs an explicit rule — most likely "visible only if every
+   member it touches is visible", which is conservative and produces `undetermined` rather than a
+   partial answer.
+4. **Option C is unchanged**, and remains the only one with a traversal consequence and no precedent.
+
+**Revised reading: option B, formulated as workspace-member entitlement, is now the leading candidate**,
+with C available where finer grain is genuinely needed. That is a narrowing, not a decision — the
+requirement remains that `SEC-8`'s gate is satisfied by a recorded decision before any implementation.
+
+**And the clause that must land with it:** since B is finer than repository-level, `FR-024` gains the
+requirement noted in the options above — a traversal blocked by entitlement returns `undetermined` with
+that as the reason, distinguishable from a budget truncation. **Add it now rather than later**, because
+a contract that gains a new `undetermined` reason after ~10 000 agent consumers exist is a breaking
+change for every one of them.
 
 ## Recommendation
 
-**None on the unit** — it is structural and policy-bearing. But two procedural recommendations:
+**None on the unit** — it is structural and policy-bearing, and remains the architect's with the
+requester on policy. But the monorepo answer has already done the cheap elimination, so what is left is:
 
-- **Answer the monorepo question first.** It may eliminate three of the four options at no cost.
-- **If the answer is not repository-level, add the `FR-024` requirement now** rather than later. A
-  contract that gains a new `undetermined` reason after consumers exist is a breaking change for every
-  one of them, and with ~10 000 agents that is expensive.
+- **Option B as workspace-member entitlement is the leading candidate.** Record it or reject it; do not
+  let it become the answer by default.
+- **Add the `FR-024` entitlement-`undetermined` requirement now**, since B is finer than
+  repository-level and the retrofit cost scales with the consumer count.
+- **Decide the derived-structure rule explicitly** — consequence 3 above. A flow that crosses an
+  unauthorised member is the case that will be got wrong silently.
 
 ## Related
 

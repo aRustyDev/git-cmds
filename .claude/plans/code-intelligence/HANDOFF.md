@@ -74,6 +74,52 @@ so a derivative work could not be released under this repository's AGPL-3.0 lice
    *output* rather than merely cost, and identity stability is what makes recomputation safe or unsafe.
    **Prototype the cluster, not the items.**
 
+## Corrections made after the first draft, and what they teach
+
+Both came from requester pushback, and both are recorded in place rather than edited away.
+
+**1. I called `FR-036` unimplementable. It was not.** I wrote that the repository wiki had no output
+contract and therefore no verification method, and that `US-N-1` was not implementable. The prior art
+ships this capability and its **public documentation** describes the contract — a language model groups
+files into modules, a page is generated per module plus an overview, cross-referenced to the graph. The
+clean-room protocol **explicitly permits** reading public docs for capability vocabulary. I asserted an
+absence without looking in the one place that was both permitted and obvious.
+
+`FR-036` now specifies a structured document set with deterministic module grouping from derived clusters
+and prose as a separately-gated optional stage — deliberately *not* the precedent's LLM grouping, with
+the cost of that choice recorded.
+
+**The generalisable lesson, and it applies to the whole precedent matrix:** `inaccessible` in
+`analysis/0003` means *the design is unreadable*, and a capability's public documentation is not its
+design. **Two other rows — response-shape conformance and the route pre-change report — may be
+misdispositioned for the same reason, and I have not re-checked them.** That is now stated in
+`analysis/0003`'s not-proven section.
+
+And the process lesson: `GAP-016` was filed `known` when it should have been `presumed`. `GAPS.md`'s own
+opening section warns against exactly this — *"acting on an unverified gap… it is easy, because a gap
+feels like knowledge"* — and it happened to the person writing the register, in the same session. **An
+asserted absence needs the same verification as an asserted presence.**
+
+**2. The target corpus was answered, and it changes eight requirements.** A Rust workspace of libraries,
+SDKs and consuming binaries under `crates/**`, potentially several binaries over gRPC/HTTP. Derived in
+`analysis/0007`. The consequences worth knowing here:
+
+- **`GAP-018` is the headline.** `CON-7` mandates per-backend feature flags, so **edges are conditional
+  on a build configuration** — and `FR-024` has no way to state one. A blast radius computed under one
+  feature set is wrong under another, in both directions. It is `known`, derived rather than speculated,
+  and **upstream of any schema**, so `B3` cannot start without it.
+- **`questions/0007` is half-answered.** It is a monorepo, so repository-level entitlement is
+  all-or-nothing over everything. Workspace-member entitlement is now the leading option — and because
+  it is finer than repository-level, the `FR-024` entitlement-`undetermined` clause should be added now
+  rather than after 10,000 agents depend on the contract.
+- **`questions/0005` is narrowed** to consumers *outside* the workspace, since the internal binaries are
+  same-workspace and same-licence.
+- **`FR-034` is materially de-risked.** gRPC schemas are *declared*, so the capability I flagged as least
+  well-defined has its hardest case turn into its easiest for the primary corpus.
+- **`SCALE-1` is uncalibrated** (`GAP-019`). A crate workspace is very unlikely to reach a million nodes.
+  The target should not drop, but two corpora are needed — the real one for correctness, a generated one
+  for the budgets.
+
 ## Artifacts I added beyond the prompt's list, and why
 
 The prompt called its deliverable list a floor. Five additions:
@@ -130,20 +176,26 @@ not on the list, so a clean run is evidence and not proof.
 2. **Ask the requester `questions/0010`** — the per-slot product list. It gates `EXT-9`'s screening,
    which gates the async decision, which must be taken during screening and never after. **This is the
    only chain whose failure mode is a rewrite rather than a delay.**
-3. **Ask the requester `questions/0007`'s sub-question:** is the target corpus many repositories or one
-   large monorepo? It may eliminate three of four authorisation options at no cost.
-4. **Hold A1 and A3.** The inputs are ready and the corpus is unreviewed.
-5. **Hold A2 properly.** The glossary is ratified for this corpus and not jointly. It is the document
+3. **Settle `GAP-018` before `B3` writes a schema.** Edges conditional on a feature set is a data-model
+   question, it is `known`, and every downstream traversal requirement inherits it.
+4. **Count the symbols in the target workspace** (`GAP-019`). Crude is fine; it needs no platform and it
+   tells you whether `SCALE-1` is calibrated against anything real.
+5. **Re-check the two `inaccessible` rows I did not re-check** — response-shape conformance and the route
+   pre-change report — against the prior art's public documentation. That is a permitted source and it
+   already overturned one disposition.
+6. **Hold A1 and A3.** The inputs are ready and the corpus is unreviewed.
+7. **Hold A2 properly.** The glossary is ratified for this corpus and not jointly. It is the document
    every later one depends on, so a unilateral ratification is the weakest link in the A-track.
-6. **Then B1**, with `analysis/0002` and `discussions/0002` as input — and the standing rule: never
+8. **Then B1**, with `analysis/0002` and `discussions/0002` as input — and the standing rule: never
    settle a seam on the requirements author's authority.
 
 ## What must not happen
 
 - **Nobody should read the grounding research.** It is cited for provenance in `specs/09`, not as
   further reading.
-- **`FR-036` must not ship as generated prose** because that was the easiest thing to build. That would
-  add an AI-provider code-egress path through a documentation feature (`questions/0011`, `GAP-016`).
+- **`FR-036`'s prose stage must not become mandatory by accident.** `FR-036` requires the document set to
+  be usable with no AI provider configured, because otherwise a documentation feature has quietly become a
+  code-egress path that every deployment must accept (`questions/0011` residual 1, `SEC-13`).
 - **The local shape must not be built as the service shape with flags off.** `analysis/0005` marks
   twenty requirements as having no local counterpart, and `PERF-1` is the trap: the local shape's
   natural design — one shared handle behind one lock — is precisely the measured prior-art failure, and

@@ -118,18 +118,35 @@ SELF_REF = re.compile(
     r"^### CON-8 —.*?(?=^### |\Z)|^\| `CON-8` \|.*$|^- \*\*`CON-8`.*$",
     re.M | re.S,
 )
+# Per-file, per-pattern exemptions. NARROW BY DESIGN: a whole-file exemption would let a real
+# pre-emption through, so each entry names the single pattern it exempts and why. Printed, never silent.
+PATTERN_EXEMPT = {
+    # The target corpus IS a crate workspace, so this file must name that path to describe its subject.
+    # It remains checked for Cargo.toml and -core, which WOULD be pre-emption.
+    "0007-target-corpus-implications.md": {"crates/ path": "describes the target corpus, not our layout"},
+}
 hits = []
 excluded = 0
+exemptions_used = []
 audited = SPECS + ANALYSIS + [FEATURES]
 for f in audited:
     t = f.read_text()
     stripped, n = SELF_REF.subn("", t)
     excluded += n
+    exempt = PATTERN_EXEMPT.get(f.name, {})
     for pat, label in STRUCTURE:
-        for mm in re.finditer(pat, stripped):
+        found = list(re.finditer(pat, stripped))
+        if not found:
+            continue
+        if label in exempt:
+            exemptions_used.append(f"{f.name}: {label} x{len(found)} — {exempt[label]}")
+            continue
+        for mm in found:
             hits.append(f"{f.name}: {label} ({mm.group(0)!r})")
-check("no module structure pre-empted", not hits,
-      "; ".join(hits) if hits else f"clean ({excluded} CON-8 self-reference blocks excluded)")
+detail = f"clean ({excluded} CON-8 self-reference blocks excluded)"
+if exemptions_used:
+    detail += "; exemptions: " + "; ".join(exemptions_used)
+check("no module structure pre-empted", not hits, "; ".join(hits) if hits else detail)
 
 # Control: the check must still fire on a real pre-emption.
 probe = "we will create crates/engine with a Cargo.toml and an engine-core crate"

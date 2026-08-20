@@ -14,13 +14,13 @@
 | [0002](questions/0002-where-does-the-backlog-live.md) | Where does the backlog live? | open — recommends deferring with a revisit trigger | requester | handing off `scheduled` gaps |
 | [0003](questions/0003-the-async-decision.md) | Is the store trait async? | open | sync **B7** | the first store implementation |
 | [0004](questions/0004-stable-identities-for-derived-structures.md) | Must derived identities be stable across runs? | open — verify the premise first | sync **B3** | `FR-018`'s design; changes it from cost to correctness |
-| [0005](questions/0005-agpl-linkability-for-internal-consumers.md) | Does any internal consumer need to *link* the engine? | open | requester, with counsel | shapes sync **B6** |
+| [0005](questions/0005-agpl-linkability-for-internal-consumers.md) | Does any internal consumer need to *link* the engine? | open — **narrowed 2026-08-20** to consumers *outside* the workspace | requester, with counsel | shapes sync **B6** |
 | [0006](questions/0006-v1-scope-decisions.md) | What is in v1? | **decided 2026-08-20** on four axes; one residual open | requester | — |
-| [0007](questions/0007-what-is-the-unit-of-authorisation.md) | What is the unit of authorisation? | open — answer the monorepo question first | sync **B2** + requester | `SEC-4`'s implementation |
+| [0007](questions/0007-what-is-the-unit-of-authorisation.md) | What is the unit of authorisation? | open — **monorepo sub-question answered 2026-08-20**; option A eliminated, workspace-member entitlement leading | sync **B2** + requester | `SEC-4`'s implementation |
 | [0008](questions/0008-embedding-provider-and-vector-width.md) | Which embedding provider, and the width policy? | open — recommendation given on the width half | sync **B2** + requester | the vector slot's schema |
 | [0009](questions/0009-is-a-tui-wanted.md) | Is a terminal interface wanted? | open | sync **B5** | nothing; changes **B5**'s answer |
 | [0010](questions/0010-store-compatibility-targets.md) | Which products are the per-slot targets? | open — ask once, then screen from the profiles | requester → sync **B2** | `EXT-9` screening → `0003` |
-| [0011](questions/0011-the-wiki-output-contract.md) | What is a "repository wiki", exactly? | open — answer the AI-provider half first | requester | `FR-036` entirely |
+| [0011](questions/0011-the-wiki-output-contract.md) | Is generated prose wanted in the wiki, and what groups its modules? | **narrowed 2026-08-20** — the contract is decided; three residuals | requester · sync **B3** | nothing outright |
 
 ## Discussions
 
@@ -46,13 +46,17 @@ despite looking like a bookkeeping one.
 
 ## Questions that block a requirement outright
 
-Two, and both are recorded as such in the SPEC rather than papered over:
+**One, now that `0011` is narrowed.**
 
-- **`0011`** blocks `FR-036`. It is the only requirement in `specs/02` with no verification method, and
-  `US-N-1` is recorded as not implementable.
-- **`0007`** blocks `SEC-4`. And if its answer is finer than repository-level, it **adds** a functional
-  requirement to `FR-024` — a traversal blocked by entitlement must return `undetermined` — which does
-  not exist yet and would be a contract change for every consumer if added later.
+- **`0007`** blocks `SEC-4`. And since the monorepo answer makes repository-level entitlement inadequate,
+  the leading option **is** finer-grained — so it **adds** a functional requirement to `FR-024`: a
+  traversal blocked by entitlement must return `undetermined`, distinguishable from a budget truncation.
+  That requirement does not exist yet, and adding it after ~10 000 agent consumers exist is a breaking
+  change for every one of them. **Add it now.**
+
+`0011` no longer blocks `FR-036`. *(Corrected 2026-08-20 — the requirement was called unimplementable for
+want of an output contract; the prior art's public documentation had one, and reading public docs is
+explicitly permitted. The residuals are real; the block was not.)*
 
 ## Answer these three first
 
@@ -60,12 +64,16 @@ Not by importance, by leverage per unit of effort:
 
 | # | Question | Why first | Cost to answer |
 |---|---|---|---|
-| **0010** | store targets | unblocks the async chain above | one question to the requester |
+| **0010** | store targets | unblocks the async chain above, whose failure mode is a rewrite | one question to the requester |
 | **0004** | derived identities | **verify the premise before designing anything.** If derived identifiers turn out to be internal-only, the question is refuted and the hardest algorithmic requirement in the corpus disappears | one check of the intended query surface |
-| **0007** | authorisation unit | the monorepo sub-question may eliminate three of four options at no cost | one question to the requester |
+| **0011** residual 1 | is prose wanted in the wiki? | it decides whether a documentation feature is also a code-egress path — a security answer before a product one | one question to the requester |
 
 `0004` is the one most worth doing today: `analysis/0003` marks the capability it governs as
 **elevated** — no precedent anywhere — and the cheapest possible outcome is discovering it is not needed.
+
+**And one thing that is not a question but should happen alongside them:** `GAP-018` — edges are
+conditional on a build configuration and no requirement can express it. It is `known`, derived rather than
+speculated, and **upstream of any schema**, so `B3` cannot start without it.
 
 ## Numbering
 

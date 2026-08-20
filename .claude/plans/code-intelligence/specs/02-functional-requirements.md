@@ -67,7 +67,14 @@ corpus and every answer over that fraction is confidently incomplete.
 edges connecting declared resources to the code that references them. Coverage is reported as an
 extraction depth per `FR-003`, not as a boolean.
 
-**Related:** `GAP-005`, sync **C1**.
+**Amended 2026-08-20 — one class of declarative format is not optional.** The target corpus is a Rust
+workspace (`analysis/0007`), and **workspace membership, inter-crate dependency edges and feature
+declarations exist only in package manifests** — no source file contains them. So manifest extraction is
+a MUST even though the surrounding requirement is a SHOULD, because without it the graph has no notion of
+the corpus's own module decomposition. Broader infrastructure-and-configuration coverage remains a
+SHOULD.
+
+**Related:** `GAP-005`, `analysis/0007`, sync **C1**.
 
 ### FR-006 — The ingestion stage MUST resolve references that span files. *(assumed)*
 
@@ -93,6 +100,11 @@ definition, the mapping from the declaration to its implementation MUST be extra
 terms as `FR-007`.
 
 **Verification:** as `FR-007`, per supported declaration format.
+
+**Amended 2026-08-20 — this is a primary capability, not a peripheral one.** In the target corpus the
+deployable units communicate over gRPC/HTTP (`analysis/0007`), so an RPC service definition **is** the
+boundary between them. A graph that does not cross it cannot answer any question that spans two binaries,
+which is most of the interesting ones.
 
 ### FR-009 — The derivation stage MUST derive flows from the graph. *(assumed)*
 
@@ -276,6 +288,15 @@ asserting that `undetermined` is returned and that no projection reports a clean
 **Open (sync A5):** the default edge set, whether named profiles exist, and whether the projections
 share one traversal. The last is a module seam and is the architect's.
 
+**Open, added 2026-08-20 — the response has no way to state a build configuration, and it needs one.**
+The target corpus uses conditional compilation, and `CON-7` mandates per-backend feature flags, so
+**edges are conditional on a feature set** (`analysis/0007`, `GAP-018`). A blast radius computed under one
+feature set is wrong under another: a symbol reachable only when a feature is enabled is either included,
+overstating reach for a deployment that disables it, or excluded, understating it for one that enables it.
+Whichever way this is resolved, **the feature set the answer was computed under MUST appear in the
+response alongside the edge set and the depth bound** — it is a correctness statement of exactly the same
+kind. Owned by **B3**, because it is a data-model question before it is a query one.
+
 ### FR-025 — The serving stage MUST answer downstream reachability from a symbol. *(assumed)*
 
 **MUST.** The opposite direction from `FR-024` — what the symbol reaches. Same contract: stated edge
@@ -378,6 +399,12 @@ absent property, one accessing a property of the wrong shape — reports exactly
 finding is evidence, not proof. This capability MUST distinguish declared from inferred shapes in its
 findings, on the same principle as **evidence class**.
 
+**Amended 2026-08-20 — the declared case dominates in the target corpus, which materially de-risks this.**
+gRPC and HTTP schema definitions are authoritative contracts, so conformance becomes "compare a **declared**
+schema against observed consumer field accesses" rather than "infer a producer's shape from its return
+statements". `analysis/0003` had marked this capability the one whose correctness was least well-defined;
+that judgement stands for ad-hoc handlers and no longer holds for the primary corpus (`analysis/0007`).
+
 ### FR-035 — The serving stage MUST produce a pre-change report for a named route handler. *(assumed)*
 
 **MUST.** Given a route handler, report what depends on it: its consumers, its declared contract, the
@@ -387,17 +414,54 @@ existing capabilities**, not a new traversal.
 **Verification:** the report's blast-radius section is byte-identical to `FR-024` invoked directly on
 the same handler. Divergence means a second traversal was written.
 
-### FR-036 — The system MUST generate a repository wiki from the knowledge graph. *(assumed)*
+### FR-036 — The system MUST generate a repository wiki as a structured document set derived from the graph. *(assumed)*
 
-**MUST.** Derived from the graph, navigable without graph vocabulary, and it MUST state the **index
-generation** it was generated from.
+**MUST.** The output is a **document set**, not a rendering: a collection of addressable pages with a
+declared structure, which a surface may render and a caller may write to disk.
 
-**Open:** the output contract — static artefact, live pages, or generated prose — is the vaguest item
-in the capability list and is filed as `questions/0011`. Until it is settled, this requirement is not
-implementable, and that is recorded rather than guessed.
+Required structure:
 
-**Verification:** deferred to the resolution of `questions/0011`. Currently **unverifiable**, and it
-appears as such in this file's verification section.
+1. **One page per module**, where a module is a **derived cluster** (`FR-010`) — not a grouping computed
+   separately for the wiki. Two groupings of the same codebase that disagree is a defect, and the
+   clusters already exist.
+2. **One overview page** linking every module page.
+3. **Cross-references that resolve.** Every reference from a page to a symbol, flow or cluster MUST be
+   a resolvable graph identity, not a text match.
+4. **The index generation** it was derived from, on every page (`FR-039`).
+5. **Navigable without graph vocabulary** — the non-technical persona is a primary consumer.
+
+**Prose is a separate, optional stage.** Page *structure* and its cross-references MUST be derived
+deterministically from the graph. Narrative text MAY additionally be generated by a configured AI
+provider, and where it is:
+
+- it MUST be attributed as generated, per page, distinguishably from derived structure;
+- it MUST be reachable only through the provider path governed by `IF-12`, restrictable to absence by
+  `IF-13`, and enumerable as a code-egress path under `SEC-13`;
+- its absence MUST leave a usable document set. A wiki that is empty without an AI provider has made
+  prose the product.
+
+**Verification:** in two parts, because the halves are not testable the same way.
+
+- **Structure — automated.** For a fixture repository with known clusters: one page per cluster plus an
+  overview; every cross-reference resolves to an existing graph node; every page states the index
+  generation; the page set is stable across two runs over unchanged source. Additionally, with no AI
+  provider configured, the document set is still produced and still navigable.
+- **Prose — human judgement, and stated as such.** Narrative quality is not automatically assertable.
+  A named reviewer judges a fixture repository's output acceptable, and that judgement is recorded.
+  This is the only requirement in this corpus whose verification is a person, and pretending otherwise
+  would be worse than admitting it.
+
+**The alternative this rejects, recorded because the precedent takes it.** The reference implementation
+groups files into modules **using the language model**, then generates a page per module. That is a
+legitimate design and this requirement deliberately does not follow it: grouping by derived cluster is
+deterministic, testable, reuses a capability that must exist anyway, and confines the provider to prose.
+The cost is that clusters are optimised for graph cohesion rather than for readability, so the module
+boundaries may be less intuitive than an LLM's would be. **If reviewers find cluster-shaped modules
+unreadable, that is the signal to revisit** — see `questions/0011`.
+
+**Residual open question:** whether prose is wanted at all in v1, which is a security-surface decision
+before it is a product one, because it turns a documentation feature into a code-egress path
+(`questions/0011`).
 
 ### FR-037 — The system WON'T answer statement-level dependence queries in v1. *(satisfied by design)*
 
@@ -471,17 +535,28 @@ telemetry.
 
 ### FR-043 — The system MUST list configured repository groups. *(assumed)*
 
-**MUST.** A group is a named set of repositories analysed together.
+**MUST.** A group is a named set of **deployable units** analysed together.
 
-**Verification:** the listed groups match configuration, including an empty result when none exist.
+**Amended 2026-08-20 — the member unit is a deployable unit, not a repository.** The original wording
+assumed cross-service contracts are cross-*repository*. In the target corpus they are **intra**-repository:
+one workspace contains many libraries and many binaries, and the binaries communicate over gRPC/HTTP
+(`analysis/0007`). A group whose members must be repositories cannot express that at all.
+
+So a member is a unit that is separately deployed and separately addressable — in the target corpus, a
+workspace member producing a binary. A group MAY span repositories, and MUST NOT require it.
+
+**Verification:** the listed groups match configuration, including an empty result when none exist, and a
+group whose members are two deployable units **within one repository** is expressible and produces
+cross-member edges (`FR-044`).
 
 ### FR-044 — The system MUST rebuild a group's contract registry and cross-repository links. *(assumed)*
 
 **MUST.** Rebuilding extracts declared interfaces from each member and links a consumer's calls to a
 provider's handlers.
 
-**Verification:** a two-repository fixture with one declared contract produces exactly one
-cross-repository edge, and removing the declaration removes it.
+**Verification:** a two-member fixture with one declared contract produces exactly one cross-member
+edge, and removing the declaration removes it. Asserted for members in **two repositories** and for
+members **within one repository**, since `FR-043` requires both to be expressible.
 
 ### FR-045 — The system MUST acquire a repository from a remote and update one already acquired. *(assumed)*
 
@@ -639,9 +714,13 @@ reporting), `FR-039` (freshness on every answer), `FR-047` (evidence class), and
 
 ### What is NOT proven
 
-- **`FR-036` is not currently verifiable.** The wiki has no output contract (`questions/0011`), so its
-  verification method is deferred. It is the one requirement in this file that is presently a wish, and
-  it is marked as such rather than given a plausible-looking test.
+- **`FR-036`'s prose half is verifiable only by a person.** Its structural half is automatically
+  assertable and is specified as such; narrative quality is not. That is a genuine limit, not a gap in
+  the specification, and it is the only requirement in this corpus whose verification names a human.
+  *(Amended 2026-08-20 — an earlier draft of this file called `FR-036` unimplementable because no
+  output contract existed. That was wrong: the prior art demonstrably does this, and its public
+  documentation describes the contract. The requirement now has one, and `questions/0011` is narrowed
+  to the residual.)*
 - **`FR-005`'s extraction depth is unspecified.** "Analyse declarative formats" is evidenced as a
   need; what depth is useful is not known, and picking one now would be invention. Sync **C1**.
 - **`FR-011`'s compute-set expansion rule does not exist.** The requirement says the compute set must
@@ -658,6 +737,16 @@ reporting), `FR-039` (freshness on every answer), `FR-047` (evidence class), and
 
 ## Amendments
 
+- **2026-08-20 (same day, second pass)** — **The target corpus was answered** — a Rust workspace of
+  library and binary crates, potentially several binaries over gRPC/HTTP — and the implications are
+  derived in `analysis/0007-target-corpus-implications.md`. Amendments landed on `FR-005` (manifest
+  extraction is a MUST inside a SHOULD), `FR-008` (promoted to primary), `FR-024` (needs a feature-set
+  predicate it does not have — `GAP-018`), `FR-034` (materially de-risked, because the declared case now
+  dominates) and `FR-043`/`FR-044` (the member unit is a **deployable unit**, not a repository).
+- **2026-08-20 (same day)** — **`FR-036` corrected.** An earlier draft called it unimplementable for want
+  of an output contract. That was wrong — the prior art ships the capability and its public documentation
+  describes the contract. `FR-036` now specifies a structured document set with optional, separately-gated
+  prose, and a two-part verification. `questions/0011` is narrowed to the residuals.
 - **2026-08-20** — Created. `FR-037` and `FR-038` recorded as `WON'T (v1)` per the requester's decision
   of the same date, with the seam clause added so the deferral is not a dead end. `FR-027`, `FR-028`,
   `FR-034`, `FR-035`, `FR-023`, `FR-024` and `FR-050` reflect the same date's decision that all

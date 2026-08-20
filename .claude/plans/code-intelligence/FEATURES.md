@@ -210,8 +210,9 @@ upgrade, the surface contract, the agent surface, identity, fail-closed, and rea
 - **That the grain is right.** See above — two features are acknowledged over-bundles.
 - **That the list is complete as a *product* description.** It is complete as a *requirement* index.
   Sync **A1** owns completeness of the capability set; A3 owns only the correspondence.
-- **`FEAT-026` is not implementable** (`FR-036`, `questions/0011`), and `FEAT-044` is a recorded
-  absence rather than a decision (`questions/0009`).
+- **`FEAT-026`'s prose half is verified by a person**, not an assertion (`FR-036`); its structure is
+  testable. **`FEAT-044`** remains a recorded absence rather than a decision (`questions/0009`).
+  *(Amended 2026-08-20 — `FEAT-026` previously read "not implementable", which was wrong.)*
 - **No feature has an effort estimate or a sequence.** Deliberate — sequencing is the architect's, and
   MUST-level priority within the 58 is not differentiated, which `specs/09` records as a real omission.
 

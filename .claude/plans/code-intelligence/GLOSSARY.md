@@ -51,8 +51,11 @@ Non-negotiable, and used by every analysis capability that walks the graph:
 |---|---|
 | **Repository** | One version-controlled source tree, identified by a stable **repository identity** independent of its filesystem location. |
 | **Indexed repository** | A repository for which an index exists. Registered, discoverable, and addressable by identity. |
-| **Repository group** | A named set of repositories analysed together so that cross-repository relationships can be established. |
-| **Contract registry** | The record of declared interfaces between repositories in a group — the evidence from which **cross-repository edges** are inferred. |
+| **Deployable unit** | Something separately deployed and separately addressable — a binary, a service. In the target corpus, a workspace member that produces a binary. **Not** a synonym for repository: one repository may contain many. |
+| **Repository group** | A named set of **deployable units** analysed together so that cross-member relationships can be established. A group MAY span repositories and MUST NOT require it *(amended 2026-08-20 — see below)*. |
+| **Contract registry** | The record of declared interfaces between the members of a group — the evidence from which **cross-member edges** are inferred. |
+| **Workspace member** | One package in a multi-package workspace. A *declared*, human-authored decomposition boundary, which is why it is a better candidate than a path pattern for scoping and entitlement. |
+| **Feature set** | The build configuration under which a graph was constructed, where the language supports conditional compilation. **Edges may exist only under some feature sets**, so a traversal's answer is relative to one — see `GAP-018`. |
 | **Symbol** | A named code element the graph can address: a function, method, class, interface, type, constant, module, and so on. The authoritative list of symbol kinds is a data-model decision, not a glossary one. |
 | **Node** | A vertex of the knowledge graph. A symbol is one kind of node; files, routes, declared contracts and **derived structures** are others. |
 | **Edge** | A directed, typed relationship between two nodes, carrying at minimum its **edge class**, its direction, and its **evidence class**. |
@@ -186,6 +189,14 @@ a separate service reached over the network, with its own lifecycle and its own 
   terms from `discussions/0001`; renamed the capability list's "process" to **flow** and recorded the
   alias; introduced **evidence class**, **index generation**, **torn read**, **advertised inventory**
   and **change set input** as terms the capability list needed but did not have.
+- **2026-08-20 (same day, second pass)** — **The target corpus answer forced a vocabulary correction, which
+  is exactly why the A2 gate exists.** *Repository group* had assumed a group's members are repositories;
+  in the target corpus the members are deployable units **inside one repository**, so the original
+  definition could not express the primary case. Added **deployable unit**, **workspace member** and
+  **feature set**; redefined *repository group* and *contract registry* in terms of members rather than
+  repositories. Note the term *repository group* is now slightly misnamed and is kept for continuity with
+  the capability list — flagged here rather than renamed, since a rename would ripple through `FR-043`,
+  `FR-044` and every document that cites them.
 
 ## Related
 

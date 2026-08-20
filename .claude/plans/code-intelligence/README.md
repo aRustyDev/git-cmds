@@ -21,9 +21,20 @@ Three things a reader should know before going further:
 2. **`git-ctx` is taken on crates.io** — verified 2026-08-20, by a live 2022 crate that is a git
    subcommand for switching branches, which is the exact semantic collision `questions/0001` had
    recorded as an acceptable risk. The decision stands as written; the finding is `GAP-014`.
-3. **The risk is concentrated, not spread.** `analysis/0003` collapses sixteen high-risk capabilities
+3. **The risk is concentrated, not spread.** `analysis/0003` collapses fifteen high-risk capabilities
    into one entangled cluster: flow and cluster derivation, their identities, and change detection.
    That cluster is the project.
+4. **The target corpus is a Rust workspace** — libraries, SDKs and consuming binaries under
+   `crates/**`, potentially several binaries over gRPC/HTTP. Answered 2026-08-20; the implications are
+   derived in `analysis/0007-target-corpus-implications.md` and propagate into eight requirements. The
+   headline consequence is `GAP-018`: **feature flags make graph edges conditional, and no requirement
+   can express a build configuration** — so a blast radius is currently answerable only relative to a
+   feature set nobody states.
+5. **One earlier claim in this corpus was wrong and is corrected in place.** `FR-036` was called
+   unimplementable for want of an output contract. The prior art ships the capability and its **public**
+   documentation describes the contract — and reading public docs is explicitly permitted by the clean
+   room. See `GAP-016` and note 17 of `analysis/0003`, which generalise the lesson: `inaccessible` means
+   the *design* is unreadable, and a capability's public documentation is not its design.
 
 ## Why this plan exists
 
@@ -127,7 +138,7 @@ or `refuted` first. And `accepted` is not `closed`: it is a deliberate documente
 **revisit trigger** or it becomes permanent by default.
 
 Four rhythms — file on sight · triage every sync · verification pass and sweep at each track boundary.
-**Seventeen entries** as of 2026-08-20: eight seeded, nine filed while authoring the requirements, and a
+**Nineteen entries** as of 2026-08-20: eight seeded, eleven filed while authoring the requirements, and a
 dated triage plus verification pass over the original eight. All are `open`; **nothing is `scheduled`**,
 which is correct, because there is **no backlog yet** (`questions/0002`) and three of the highest-value
 entries are unverified and therefore ineligible under the binding rule. Until there is a backlog,
@@ -162,11 +173,12 @@ hardest algorithmic requirement in the corpus rather than solve it.
 | `analysis/0004-store-capability-matrix.md` | The six slots as profiles, their portability hazards, and the **async screening record** (empty, and why). | ✅ |
 | `analysis/0005-deployment-shape-contrast.md` | Applicability per requirement, distinguishing *unimposed* locally from *inapplicable* locally. | ✅ |
 | `analysis/0006-threat-model.md` | Assets, principals, trust boundaries per shape, adversaries in and out of scope. | ✅ |
+| `analysis/0007-target-corpus-implications.md` | The target corpus (a Rust workspace over gRPC/HTTP) and the eight requirements it changes. Carries the conditional-edge finding. | ✅ |
 | [`QUESTIONS.md`](QUESTIONS.md) | Index over `questions/` and `discussions/`, with the dependency chain that ends in a rewrite. | ✅ |
 | `questions/0001` … `0011` | Naming · backlog · async · derived identities · AGPL linkability · v1 scope · authorisation unit · embedding provider · TUI · store targets · wiki contract. | ✅ |
 | `discussions/0001` · `0002` | What "impact analysis" means · is read/write asymmetry the primary seam. | ✅ |
 | [`SYNCS.md`](SYNCS.md) | The sync catalogue — **twenty-one** syncs, four tracks, ordering, hard gates, and a per-sync status. Living. | ✅ |
-| [`GAPS.md`](GAPS.md) | Gap taxonomy, lifecycle, the four rhythms, and the register — **17 entries**, with a dated triage and verification pass. Living. | ✅ |
+| [`GAPS.md`](GAPS.md) | Gap taxonomy, lifecycle, the four rhythms, and the register — **19 entries**, with a dated triage and verification pass, and a recorded failure of the register's own rule. Living. | ✅ |
 | `HANDOFF.md` | What the author is confident in, what they are not, and the clean-room taint statement. | ✅ |
 | `scripts/audit-corpus.py` | **The executable audit.** Two-way traceability, story minimums, inherited-negative tagging, a verification method per requirement, the proven/not-proven split, no structure pre-empted (with a discriminating control), the laundering denylist, and the AGPL clauses. Run it with the plan directory as its only argument. | ✅ |
 | `prds/` · `phases/` · `research/` · `findings/` | Not created — no document needs them yet. | ⬜ |
