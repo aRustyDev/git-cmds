@@ -1,6 +1,8 @@
 # Question 0010 — Which products are the per-slot compatibility targets?
 
-- **Status:** open · **Owner:** the requester, then sync **B2** · **Date:** 2026-08-20
+- **Status:** **answered 2026-08-20** — the list is supplied and recorded below. **Open** on the
+  five consequences it raises (C1–C5), and **entirely unscreened**.
+- **Owner:** the requester on C1 and C3; sync **B2** on the screen · **Date:** 2026-08-20
 - **Owns:** `GAP-010`
 - **Blocks:** nothing in the requirements. Blocks `EXT-9`'s async screening, which blocks
   `questions/0003`, which blocks the first store implementation.
@@ -13,7 +15,96 @@ instructs that they be treated as compatibility targets, named only in the exter
 
 So: what were they?
 
-## What was done in the meantime
+## ✅ Answered 2026-08-20 — the list, as supplied
+
+Recorded verbatim on receipt, **before any screening**, because this register entry exists precisely
+because the list was lost once (`GAP-010`).
+
+| Slot | Candidates, as given |
+|---|---|
+| **Graph** | Neo4j **(external-only)** · Ladybug · Grafeo · IndraDB · graphdblite · sombra · Omnigraph · raphtory · SparrowDB · kin |
+| **Relational** | SQLite · PostgreSQL |
+| **Vector** | Qdrant · Lance |
+| **Search** | OpenSearch |
+| **Key-value** | Valkey · Redis · RocksDB |
+| **Text-search** | **dropped — slot removed** |
+
+**Nothing here is screened.** No candidate has been checked for licence, maintenance status, embedded
+versus networked, client concurrency model, dialect coverage, or the capability profile in `specs/04`.
+`EXT-9`'s screening record remains empty, so `questions/0003` is still unanswerable. Treat every name
+above as a **candidate**, not a selection.
+
+**Two observations that are decisions rather than screening**, and both are the requester's to confirm:
+
+1. **Marking Neo4j external-only is correct and worth keeping explicit.** Its Community edition is
+   GPL-3.0, and reaching it over its network protocol as a separate process is the arm's-length posture
+   `EXT-8` clause 2 requires. Embedding it would be a materially different licence question.
+2. **Dropping text-search relocates a requirement rather than removing one** — see below. That is the
+   one consequence of this list that needs an answer before `specs/04` can be amended.
+
+## Consequences of the list that need answers
+
+### C1 — `FR-017` still requires a lexical index, and the slot that held it is gone
+
+`FR-017` requires a lexical index; `FR-021`'s hybrid search has a lexical lane. Removing the
+text-search slot does not remove that requirement — it **relocates** it, to either the graph engine or
+the search slot. Which one changes the screening criteria substantially:
+
+- **If the graph engine provides it**, then lexical ranking becomes a **mandatory** graph-candidate
+  capability rather than an optional one — and it carries a specific known failure mode, see C2.
+- **If the search slot provides it**, then OpenSearch acquires the consumer it currently lacks
+  (`GAP-011`), the slot becomes **required rather than optional**, and its embedded half is empty,
+  because there is no embedded OpenSearch. `REV-2`'s two-implementations rule would then need a
+  pure-Rust lexical index naming a second candidate that this list does not contain.
+- **If neither provides it**, `FR-021` loses a lane permanently and should be respecified as
+  traversal-plus-semantic, with `FR-017` becoming a `WON'T`.
+
+### C2 — Per-document lexical update is now a hard screening filter, not a preference
+
+`EXT-5`'s profile made per-document update **required** because the grounding measured an engine whose
+full-text surface offers only whole-index create, drop and query — **no per-row or per-document
+update** — so every index run re-tokenises the entire corpus, incremental path included.
+
+With text-search dropped and lexical ranking relocated to the graph engine, **that constraint moves onto
+the graph slot and becomes load-bearing**: a graph candidate whose full-text index can only be rebuilt
+wholesale directly contradicts `PERF-6` and `FR-012`. This is the sharpest single screening criterion
+the list produces, and it eliminates candidates rather than ranking them.
+
+### C3 — The key-value slot still has no consumer
+
+Naming products does not create one (`GAP-011`). Valkey, Redis and RocksDB are candidates for a slot no
+capability reads or writes. Recommendation unchanged: specify it, do not build it, until something needs
+it. Note that if it is ever used for **coordination** rather than caching, compare-and-set becomes
+load-bearing and the slot stops being optional.
+
+### C4 — Licence notes worth carrying into the screen
+
+Stated at the confidence I actually have, since `EXT-8` is a build gate and a wrong assumption here is
+expensive:
+
+- **Confident:** OpenSearch, Qdrant, RocksDB — Apache-family. SQLite — public domain. PostgreSQL — its
+  own permissive licence. Neo4j Community — GPL-3.0. Valkey — BSD, and it exists *because* Redis
+  relicensed, which is itself the `EXT-8` failure mode in the wild.
+- **Needs checking:** Redis's current terms (they have changed more than once recently), Lance, IndraDB,
+  raphtory, and **every one of Grafeo, graphdblite, sombra, Omnigraph, SparrowDB and kin**.
+- **One point that cuts helpfully:** AGPL-3.0 is generally understood to permit combination with
+  GPL-3.0 code, which may make a strong-copyleft **embedded** engine linkable where a permissive project
+  licence could not. Worth counsel's confirmation rather than mine — but if it holds, it widens the
+  embedded candidate set rather than narrowing it.
+
+### C5 — The dominant risk in the graph list is maintenance, not capability
+
+Most of the graph candidates appear to be small or young projects. The grounding recorded the specific
+trap: **four graph projects surveyed for the prior effort were archived or unmaintained**, with the
+recorded conclusion *"do not build on these"*. And `REV-2` requires **two** implementations per slot to
+prove the seam is real — so a candidate that is abandoned takes the seam's proof with it, not just a
+backend.
+
+**So the screen must score maintenance status, not only capability**: last release, commit cadence,
+contributor count, whether anything else depends on it in production. That criterion is absent from
+`specs/04` and should be added to `EXT-9`'s procedure.
+
+## What was done before the list arrived
 
 Per the requester's decision of 2026-08-20: each slot is specified as a **capability profile** — the
 contract business logic depends on — and candidate products are named in `specs/04` **marked
