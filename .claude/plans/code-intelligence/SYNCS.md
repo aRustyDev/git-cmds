@@ -7,8 +7,8 @@
 
 ## How to read this
 
-**Twenty syncs across four tracks.** A flat list of twenty checkpoints is not a process, so they are
-grouped by what they gate, and the tracks run with different urgency:
+**Twenty-one syncs across four tracks** (**A6** added 2026-08-20). A flat list of twenty-odd checkpoints
+is not a process, so they are grouped by what they gate, and the tracks run with different urgency:
 
 | Track | Gates | Can it run in parallel? |
 |---|---|---|
@@ -35,6 +35,36 @@ dilutes both. The one exception is noted at D1.
 - **Bring the disliked consequence.** House ADR convention; it applies to sync proposals too.
 - **Prior-art syncs (C2–C4) share one outcome vocabulary:** *adopt as dependency · vendor · emulate
   the design · take the UX only · decline* — each with a reason, and a licence check.
+
+---
+
+## Status — 2026-08-20
+
+The requirements corpus has been authored. **No sync has been held**, because no sync has taken place
+with the architect — the standing rule is that a sync ends with something written down *jointly*, and
+one party writing a document is not a sync. What follows is what each sync's inputs now are.
+
+| Sync | State | What exists now |
+|---|---|---|
+| **A1** capability review | **ready to fire** | `analysis/0001-capabilities.md` (60 capabilities with consumer, mode, store and shape metadata) and `specs/01-personas-and-flows.md` (five personas, five flows) |
+| **A2** vocabulary | **satisfied on the requirements side; ratification outstanding** | [`GLOSSARY.md`](GLOSSARY.md), written **before** any SPEC prose and used by every later document. Three deliberate renames, recorded with their aliases. **The architect has not reviewed it**, so it is ratified *for this corpus*, not jointly. |
+| **A3** feature-list review | **ready to fire** | [`FEATURES.md`](FEATURES.md) — 61 features, 163 requirements, traced both ways by an **executable** ID-set diff rather than by reading |
+| **A4** capability wishlist | **not started** | `GAP-006` awaits it. This is the one Track-A sync the authoring did not prepare, because it is generative rather than descriptive — and doing it alone would have produced the requirements author's wishlist rather than the requester's |
+| **A5** the impact decision | **partially advanced** | `discussions/0001`'s four-term vocabulary is **adopted**, and "impact analysis" appears in no requirement. The seven axes remain open, and the default edge set — the highest-leverage single decision in the analysis surface — is unspecified. Still gated by **C3** |
+| **A6** feasibility prototype gate | **new — see below** | `analysis/0003` produced the input |
+| **B1** seam pressure test | **ready to fire** | `analysis/0002-feature-clusters.md` (four candidate clusterings, none preferred, ten invariants each cited to a requirement) and `discussions/0002-read-write-asymmetry.md` |
+| **B2** abstractions | inputs partial | `analysis/0004-store-capability-matrix.md` — capability profiles per slot, and the portability hazards |
+| **B3** data models | inputs partial | the authoritative-versus-derived table in `analysis/0004`; `questions/0004` on derived identities. **No schema exists**, correctly |
+| **B4** data flows | inputs partial | flow **D** in `specs/01` — stages, ordering requirements, and what crosses a network hop per shape |
+| **B5** interfaces and protocols | **ready to fire** | `specs/04` (`IF-1`–`IF-14`), `questions/0009` (TUI), and `GAP-017` (streaming may be latent in the contract) |
+| **B6** library/SDK/binary split | inputs partial | `CON-4`/`CON-5` and their tension; `questions/0005`. **Also unblocks the engine name** |
+| **B7** async | **blocked** | `EXT-9` requires a screening record; `analysis/0004` holds it and it is **empty** because no candidate exists (`GAP-010`, `questions/0010`) |
+| **C1**–**C4** prior art | not started | `analysis/0003`'s permissive column is a **survey**, not verified use (`GAP-012`). Track C exists to convert claims into evidence |
+| **D1** telemetry | **necessity now fully specified** | `specs/03` names the measuring signal for every budget, and `OPS-1` states plainly that `PERF-1`, `PERF-2`, `PERF-6`, `SCALE-3`, `SCALE-4` and staleness are unverifiable without it. `GAP-004` unchanged and unclosed |
+| **D2**–**D4** practice | not started | `specs/08` states the testing and documentation **requirements**; the strategy is still D2's |
+
+**The blocking chain to be aware of:** `questions/0010` → `EXT-9` screening → **B7** → the first store
+implementation. Every step is cheap except the last, and the last is a rewrite if the order is wrong.
 
 ---
 
@@ -96,6 +126,36 @@ is scheduled — see [`GAPS.md`](GAPS.md).
 **Input:** `discussions/0001-what-impact-analysis-means.md`.
 **Output:** the seven axes settled; whether one traversal serves all projections. Feeds terms back to
 the A2 glossary.
+
+### A6 — Feasibility prototype gate *(added 2026-08-20)*
+**Fires:** after A1, and **before anything is scheduled** against a capability the precedent analysis
+marks `elevated`.
+**Input:** `analysis/0003-feature-gaps.md`, specifically the seven `elevated` and nine `inaccessible`
+entries.
+**Output:** for each `elevated` capability, either a prototype that establishes feasibility, or an
+explicit `accepted` gap with a revisit trigger.
+
+**Why this sync did not exist and needs to.** The gap register's binding rule is *nothing unverified
+gets scheduled* — but that rule is about the confidence in a **gap**, and it does not cover a
+requirement whose *feasibility* is unestablished. `analysis/0003` found seven capabilities with **no
+precedent anywhere**, which means no proof they can be built at all, and nothing in the other nineteen
+syncs owns that. A requirement with a verification method and no feasibility evidence is not a wish —
+it is worse, because it looks rigorous.
+
+**The candidates, and they are not evenly distributed.** Four of the seven are one entangled cluster:
+flow derivation, cluster derivation, their **identities** (`GAP-007`), and the compute-set rule for
+change detection (`GAP-009`). Derived structures are what make incrementality change *output* rather
+than merely cost, and identity stability is what makes recomputation safe or unsafe. **Prototype the
+cluster, not the four items.** The remaining three — patch-without-checkout diff impact, evidence-class
+weighting, and AST-accurate rename with atomic index writeback — are independent.
+
+**Cheapest first, and one of them may delete work rather than create it:** `GAP-007`'s verification is a
+single check of whether derived identifiers are externally visible at all. If they are not, the hardest
+algorithmic requirement in the corpus is **refuted**. Do that before prototyping anything.
+
+**Note also the `inaccessible` class**, which this sync should treat differently from `elevated`:
+feasibility is proven and the design is unavailable under the clean room. Those need design effort, not
+feasibility prototypes, and conflating the two wastes the prototype budget.
 
 ---
 
@@ -370,8 +430,10 @@ A1 ──▶ A2 ──▶ A3
   │                   ├──▶ B5
   │                   └──▶ B6 ──▶ B7        B6 unblocks the engine name
   ├──▶ A4                                    (questions/0001)
-  └──▶ A5 ◀── C3                             C3 gates the diff-impact decision
+  ├──▶ A5 ◀── C3                             C3 gates the diff-impact decision
+  └──▶ A6                                    A6 gates SCHEDULING, not design
 
+questions/0010 ──▶ EXT-9 screening ──▶ B7    the chain that ends in a rewrite
 C1, C2, C4  ── parallel, feed B5 / A5 / the rename requirement
 D1 ── early (requirements depend on it)
 D2, D3, D4 ── parallel, non-blocking
@@ -389,3 +451,12 @@ D2, D3, D4 ── parallel, non-blocking
 
 - **2026-08-19** — Created with twenty syncs across four tracks. Supersedes the flat S1–S6 list
   previously inline in `PROMPT.md`; the mapping is A1←S1, A2←S2, B1←S3, A5←S4, B6←S5, B7←S6.
+- **2026-08-20** — **Added `A6`, the feasibility prototype gate**, and a `## Status` section recording
+  each sync's inputs after the requirements corpus was authored. A6 exists because the gap register's
+  binding rule covers confidence in a *gap* and not feasibility of a *requirement*, and
+  `analysis/0003` found seven capabilities with no precedent anywhere — so no proof they can be built.
+  Nothing in the original twenty owned that. **A2 is satisfied on the requirements side** (the glossary
+  was written before any SPEC prose and is used throughout) but its joint ratification with the
+  architect is outstanding. **B7 is blocked** on an empty screening record; the chain
+  `questions/0010` → `EXT-9` → `B7` is now drawn in the ordering diagram because it is the one path
+  whose failure mode is a rewrite rather than a delay.
